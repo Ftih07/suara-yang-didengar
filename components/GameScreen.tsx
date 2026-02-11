@@ -1,26 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { storyData, GameState } from "../data/story";
+import { saveGame } from "../lib/game";
 
 // Tambahkan Props
 type GameScreenProps = {
   startSceneId: string; // Scene awal (bisa ch1 atau ch2)
   onBackToMenu: () => void; // Fungsi buat balik ke menu
+  savedGameData?: { sceneId: string; stats: GameState } | null; // Data saved game (optional)
 };
 
-export default function GameScreen({ startSceneId, onBackToMenu }: GameScreenProps) {
-  // Gunakan startSceneId sebagai default state
-  const [currentSceneId, setCurrentSceneId] = useState<string>(startSceneId);
-  
-  const [stats, setStats] = useState<GameState>({
-    trust: 50,
-    stability: 50,
-    economy: 50,
-  });
+const DEBOUNCE_DELAY = 5000; // 5 seconds
+
+export default function GameScreen({ startSceneId, onBackToMenu, savedGameData }: GameScreenProps) {
+  // Gunakan saved game data jika ada, kalau tidak gunakan startSceneId
+  const [currentSceneId, setCurrentSceneId] = useState<string>(
+    savedGameData?.sceneId || startSceneId
+  );
+
+  const [stats, setStats] = useState<GameState>(
+    savedGameData?.stats || {
+      trust: 50,
+      stability: 50,
+      economy: 50,
+    }
+  );
+
+  // Ref untuk debounce timer
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialMount = useRef(true);
 
   const currentScene = storyData[currentSceneId];
+
+  // Immediate autosave saat pindah chapter/scene
+  useEffect(() => {
+    // Skip save pada mount pertama kali
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+
+    // Save langsung tanpa debounce ketika scene berubah
+    saveGame(currentSceneId, stats);
+  }, [currentSceneId]);
+
+  // Autosave dengan debounce untuk perubahan stats
+  useEffect(() => {
+    // Clear existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Set new timer untuk autosave setelah 5 detik
+    debounceTimerRef.current = setTimeout(() => {
+      saveGame(currentSceneId, stats);
+    }, DEBOUNCE_DELAY);
+
+    // Cleanup function
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [stats]);
 
   const handleChoice = (nextId: string, effect?: Partial<GameState>) => {
     setCurrentSceneId(nextId);
@@ -35,9 +79,9 @@ export default function GameScreen({ startSceneId, onBackToMenu }: GameScreenPro
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black text-white font-sans">
-      
+
       {/* Tombol Back ke Menu (Pojok Kanan Atas) */}
-      <button 
+      <button
         onClick={onBackToMenu}
         className="absolute top-5 right-5 z-50 bg-red-600/80 hover:bg-red-700 text-white px-3 py-1 rounded border border-white/20 text-sm"
       >
@@ -46,13 +90,13 @@ export default function GameScreen({ startSceneId, onBackToMenu }: GameScreenPro
 
       {/* --- LAYER 1: BACKGROUND --- */}
       <div className="absolute inset-0 z-0">
-         <Image 
-           src={currentScene.backgroundImage} 
-           alt="background" 
-           fill 
-           className="object-cover opacity-80"
-           priority
-         />
+        <Image
+          src={currentScene.backgroundImage}
+          alt="background"
+          fill
+          className="object-cover opacity-80"
+          priority
+        />
       </div>
 
       {/* --- LAYER 2: STATS HUD --- */}
@@ -65,11 +109,11 @@ export default function GameScreen({ startSceneId, onBackToMenu }: GameScreenPro
 
       {/* --- LAYER 3: CHARACTER --- */}
       <div className="absolute bottom-0 right-0 md:right-10 z-10 w-[300px] h-[500px] md:w-[450px] md:h-[700px]">
-        <Image 
-          src={currentScene.characterImage} 
-          alt="character" 
-          fill 
-          className="object-contain object-bottom drop-shadow-2xl" 
+        <Image
+          src={currentScene.characterImage}
+          alt="character"
+          fill
+          className="object-contain object-bottom drop-shadow-2xl"
         />
       </div>
 
@@ -107,8 +151,8 @@ function StatBar({ label, value, color }: { label: string, value: number, color:
         <span>{value}%</span>
       </div>
       <div className="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-600">
-        <div 
-          className={`h-full ${color} transition-all duration-500 ease-out shadow-[0_0_10px_currentColor]`} 
+        <div
+          className={`h-full ${color} transition-all duration-500 ease-out shadow-[0_0_10px_currentColor]`}
           style={{ width: `${value}%` }}
         />
       </div>

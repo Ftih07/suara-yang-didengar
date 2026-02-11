@@ -4,6 +4,9 @@ export type GameState = {
   trust: number; // Kepercayaan Warga
   stability: number; // Stabilitas Politik
   economy: number; // Kas Desa/Ekonomi
+
+  completedChapters?: number[]; // Bab yang sudah diselesaikan
+  lastSaved?: number; // Timestamp terakhir disimpan
 };
 
 export type Choice = {
@@ -20,6 +23,15 @@ export type Scene = {
   backgroundImage: string; // Path asset di public/backgrounds/
   choices: Choice[];
 };
+
+
+
+const SAVE_KEY = "desa-simulator-save-v1";
+
+
+
+
+
 
 export const storyData: Record<string, Scene> = {
   // ==========================================
