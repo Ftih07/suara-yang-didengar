@@ -39,7 +39,7 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
   };
 
   const chapters = [
-    { id: 1, title: "Chapter 1", startId: "start", locked: false },
+    { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: false },
     { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: false },
     { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: false },
     { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: false },
@@ -49,7 +49,7 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
     { id: 8, title: "Chapter 8", startId: "ch8_intro", locked: true },
   ];
 
-  const handleChapterClick = (chapter: any) => {
+  const handleChapterClick = (chapter: { locked: boolean; startId: string }) => {
     if (chapter.locked) return;
     if (hasSave) {
       setSelectedChapterId(chapter.startId);
