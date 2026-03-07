@@ -1,6 +1,7 @@
 // lib/game.ts - Game utility functions
 
-import { GameState } from "../data/story";
+import { GameState } from "@/types/chapter-data";
+
 
 export const AUTOSAVE_KEY = "desa-simulator-autosave";
 
@@ -8,6 +9,8 @@ export interface SaveData {
     currentSceneId: string;
     stats: GameState;
     timestamp: number;
+    chapterId: string;     // Prefix chapter, e.g. "ch4"
+    chapterTitle?: string; // Judul chapter untuk display di continue screen
 }
 
 /**
@@ -35,9 +38,12 @@ export const loadGame = (): SaveData | null => {
  */
 export const saveGame = (currentSceneId: string, stats: GameState): void => {
     try {
+        if (typeof window === "undefined") return;
+
         const saveData: SaveData = {
             currentSceneId,
             stats,
+            chapterId: currentSceneId.split("-")[0], // Extract chapter ID from scene ID
             timestamp: Date.now(),
         };
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
