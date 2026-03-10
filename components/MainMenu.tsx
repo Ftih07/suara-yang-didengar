@@ -84,7 +84,7 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/backgrounds/bg-blur-desa.png"
+          src="/backgrounds/bg-blur-desa.webp"
           alt="bg"
           fill
           className="object-cover object-center"
