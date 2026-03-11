@@ -29,7 +29,14 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
     savedGameData?.sceneId ?? startSceneId
   );
 
+  // 1. STATS AKTUAL: Berubah di latar belakang tiap kali milih opsi (disimpan ke save data & ending)
   const [stats, setStats] = useState<GameState>(
+    savedGameData?.stats ?? DEFAULT_STATS
+  );
+
+  // 2. STATS HUD (TAMPILAN): Dikunci pada nilai awal saat chapter dimulai
+  // Kita tidak butuh fungsi setDisplayStats karena nilainya sengaja dibuat statis selama chapter berjalan
+  const [displayStats] = useState<GameState>(
     savedGameData?.stats ?? DEFAULT_STATS
   );
 
@@ -207,17 +214,21 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
       )}
 
       {/* --- LAYER 2: STATS HUD --- */}
-      <div className="absolute top-5 left-5 z-20 bg-slate-800/90 border-2 border-yellow-600 p-4 rounded-lg shadow-lg w-64">
+      <div className="absolute top-5 left-5 z-20 bg-slate-800/90 backdrop-blur-sm border-2 border-yellow-600 p-4 rounded-lg shadow-lg w-64">
         {activeChapterTitle && (
           <p className="text-yellow-400 text-[10px] uppercase tracking-widest mb-2 truncate font-semibold">
             {activeChapterTitle}
           </p>
         )}
-        <h3 className="text-yellow-500 font-bold mb-2 uppercase tracking-wider text-sm">Status Desa</h3>
-        <StatBar label="Kepercayaan" value={stats.trust} color="bg-blue-500" />
-        <StatBar label="Kas Desa" value={stats.treasury} color="bg-yellow-500" />
-        <StatBar label="Stabilitas" value={stats.stability} color="bg-green-500" />
-        <StatBar label="Warisan" value={stats.legacy} color="bg-purple-400" />
+
+        <h3 className="text-yellow-500 font-bold mb-2 uppercase tracking-wider text-sm">
+          Status Desa
+        </h3>
+
+        <StatBar label="Kepercayaan" value={displayStats.trust} color="bg-blue-500" />
+        <StatBar label="Kas Desa" value={displayStats.treasury} color="bg-yellow-500" />
+        <StatBar label="Stabilitas" value={displayStats.stability} color="bg-green-500" />
+        <StatBar label="Warisan" value={displayStats.legacy} color="bg-purple-400" />
       </div>
 
       {/* --- LAYER 3: CHARACTER --- */}

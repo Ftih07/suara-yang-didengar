@@ -34,6 +34,9 @@ export type ChapterMeta = {
 };
 
 export type EndingId =
+  | "ch1_A1" | "ch1_A2" | "ch1_B1" | "ch1_B2" 
+  | "ch2_A1" | "ch2_A2" | "ch2_B1" | "ch2_B2"
+  | "ch3_A1" | "ch3_A2" | "ch3_B1" | "ch3_B2"
   | "ch4_A1" | "ch4_A2" | "ch4_B1" | "ch4_B2"
   | "ch5_A1" | "ch5_A2" | "ch5_B1" | "ch5_B2"
   | "unknown";

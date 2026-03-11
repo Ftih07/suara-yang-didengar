@@ -1,5 +1,5 @@
-// data/chapter-5.ts
-// Chapter 5: Satu Keputusan Besar Terakhir
+// data/chapter-4.ts
+// Chapter 4: Ketidakpuasan Warga Meledak
 // Konsep Matematika: Model Pertumbuhan (Eksponensial vs. Linier) & Expected Value / Risk Assessment
 
 import type { ChapterData, ChapterMeta, EndingDef, EndingId } from "../types/chapter-data";
