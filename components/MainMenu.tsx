@@ -3,13 +3,81 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { hasSavedGame, loadGame, getPlayedChapters } from "../lib/game";
+import { GameState } from "@/types/chapter-data";
 
 type MainMenuProps = {
   onSelectChapter: (startId: string) => void;
   onContinueGame: () => void;
 };
 
-export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuProps) {
+// --- Komponen Bantuan untuk Bar Status di Modal ---
+const SimpleStatBar = ({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) => {
+  const qualityColor =
+    value >= 75
+      ? "text-green-700"
+      : value >= 45
+        ? "text-[#b08d6a]"
+        : "text-red-700";
+  return (
+    <div className="mb-4">
+      <div className="flex justify-between items-baseline mb-1">
+        <span className="text-sm font-bold text-[#3b2a1a] uppercase tracking-wide font-serif">
+          {label}
+        </span>
+        <span
+          className={`text-lg font-black tabular-nums ${qualityColor} font-serif`}
+        >
+          {value}%
+        </span>
+      </div>
+      <div className="w-full bg-[#d4bc96]/50 border border-[#b08d6a] h-3 rounded-full overflow-hidden">
+        <div
+          className={`h-full ${color} rounded-full shadow-inner transition-all duration-500`}
+          style={{ width: `${value}%` }}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Fungsi pembaca status untuk memberikan tips/catatan Kades
+const getStatusFeedback = (stats: GameState) => {
+  const { trust, treasury, stability, legacy } = stats;
+
+  if (trust <= 35 && treasury <= 35 && stability <= 35) {
+    return "Kondisi kritis! Desa berada di ambang kehancuran. Setiap keputusan Anda selanjutnya akan menjadi penentu hidup matinya Amanah.";
+  }
+  if (trust >= 75 && treasury >= 75 && stability >= 75) {
+    return "Masa keemasan Desa Amanah! Warga makmur, kas penuh, dan desa sangat damai. Kepemimpinan yang luar biasa!";
+  }
+  if (treasury >= 70 && trust <= 40) {
+    return "Kas desa memang melimpah, tapi rasa percaya warga memudar. Hati-hati, uang yang banyak tidak akan bisa membendung kemarahan rakyat yang kecewa.";
+  }
+  if (trust >= 70 && treasury <= 40) {
+    return "Warga sangat mencintai dan mengandalkan Anda, namun kas yang menipis berisiko membuat janji-janji Anda gagal terealisasi. Perlu strategi keuangan yang cerdas.";
+  }
+  if (stability <= 35) {
+    return "Ketegangan di masyarakat sedang tinggi. Stabilitas yang goyah sangat rentan memicu konflik horizontal. Utamakan keputusan yang mendamaikan.";
+  }
+  if (legacy <= 35) {
+    return "Kemajuan desa mulai mengorbankan warisan leluhur dan ekologi kita. Ingatlah bahwa identitas desa sama pentingnya dengan materi.";
+  }
+
+  return "Kondisi desa terpantau seimbang dan terkendali. Teruskan kepemimpinan Anda dengan penuh pertimbangan dan kebijaksanaan.";
+};
+
+export default function MainMenu({
+  onSelectChapter,
+  onContinueGame,
+}: MainMenuProps) {
   const [hasSave, setHasSave] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
@@ -40,18 +108,34 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
     setSelectedChapterId(null);
   };
 
+  // Fungsi untuk menampilkan Status Desa
+  const handleShowStatus = () => {
+    const savedData = loadGame();
+    if (savedData && savedData.stats) {
+      setSavedStats(savedData.stats);
+    } else {
+      setSavedStats(null);
+    }
+    setShowStatusModal(true);
+  };
+
   const chapters = [
-    { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: true },  // belum ada data
-    { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: !playedChapters.includes("ch1") },  // belum ada data
-    { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: !playedChapters.includes("ch2") },  // belum ada data
-    { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: !playedChapters.includes("ch3") }, // selalu terbuka
+    { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: false }, // selalu terbuka, starting point
+    { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: !playedChapters.includes("ch1") },
+    { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: !playedChapters.includes("ch2") },
+    { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: !playedChapters.includes("ch3") },
     { id: 5, title: "Chapter 5", startId: "ch5_intro", locked: !playedChapters.includes("ch4") },
     { id: 6, title: "Chapter 6", startId: "ch6_intro", locked: true },
     { id: 7, title: "Chapter 7", startId: "ch7_intro", locked: true },
     { id: 8, title: "Chapter 8", startId: "ch8_intro", locked: true },
+    { id: 9, title: "Chapter 9", startId: "ch9_intro", locked: true },
+    { id: 10, title: "Chapter 10", startId: "ch10_intro", locked: true },
   ];
 
-  const handleChapterClick = (chapter: { locked: boolean; startId: string }) => {
+  const handleChapterClick = (chapter: {
+    locked: boolean;
+    startId: string;
+  }) => {
     if (chapter.locked) return;
     if (hasSave) {
       setSelectedChapterId(chapter.startId);
@@ -61,18 +145,30 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
     }
   };
 
-  const WoodButton = ({ children, onClick, width = "w-[340px]", className = "" }: any) => (
+  const WoodButton = ({
+    children,
+    onClick,
+    width = "w-[340px]",
+    className = "",
+  }: any) => (
     <button
       onClick={onClick}
       className={`relative flex items-center justify-center h-[76px] ${width} group transition-all duration-300 hover:scale-105 active:scale-95 ${className}`}
     >
-      <Image src="/ui/txt box 1.png" alt="btn bg" fill className="object-fill drop-shadow-xl pointer-events-none" unoptimized />
+      <Image
+        src="/ui/txt box 1.png"
+        alt="btn bg"
+        fill
+        className="object-fill drop-shadow-xl pointer-events-none"
+        unoptimized
+      />
       <span
         className="relative z-10 text-[26px] font-bold tracking-widest uppercase mt-1"
         style={{
           color: "#5e3a21",
-          textShadow: "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
-          fontFamily: "Georgia, serif"
+          textShadow:
+            "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
+          fontFamily: "Georgia, serif",
         }}
       >
         {children}
@@ -82,11 +178,10 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
 
   return (
     <div className="relative w-full h-screen bg-black flex flex-col items-center justify-center font-serif overflow-hidden select-none">
-
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/backgrounds/bg-blur-desa.png"
+          src="/backgrounds/bg-blur-desa.webp"
           alt="bg"
           fill
           className="object-cover object-center"
@@ -97,12 +192,18 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
         <div className="absolute inset-0 bg-black/10" />
       </div>
 
-      {menuView === 'main' && (
+      {menuView === "main" && (
         <div className="relative z-10 flex flex-col items-center w-full h-full pt-16">
-
           {/* Top Left Character Icon */}
           <div className="absolute top-6 left-6 w-20 h-20 bg-[#3d271d] border-4 border-[#24150e] rounded-xl overflow-hidden shadow-2xl flex items-center justify-center">
-            <Image src="/characters/kades-normal.png" alt="Profile" width={80} height={80} className="object-cover scale-150 mt-4" unoptimized />
+            <Image
+              src="/characters/kades-normal.png"
+              alt="Profile"
+              width={80}
+              height={80}
+              className="object-cover scale-150 mt-10"
+              unoptimized
+            />
           </div>
 
           {/* Title */}
@@ -112,7 +213,7 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
               style={{
                 fontFamily: "Georgia, serif",
                 WebkitTextStroke: "3px #ebcca5",
-                textShadow: "6px 6px 12px rgba(0,0,0,0.6)"
+                textShadow: "6px 6px 12px rgba(0,0,0,0.6)",
               }}
             >
               SUARA YANG DIDENGAR
@@ -122,33 +223,26 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
           {/* Buttons */}
           <div className="flex flex-col gap-6 items-center">
             {hasSave && (
-              <WoodButton onClick={handleContinueSaved}>
-                LANJUTKAN
-              </WoodButton>
+              <WoodButton onClick={handleContinueSaved}>LANJUTKAN</WoodButton>
             )}
-            <WoodButton onClick={() => setMenuView('chapterSelect')}>
+            <WoodButton onClick={() => setMenuView("chapterSelect")}>
               MAIN CHAPTER
             </WoodButton>
-            <WoodButton onClick={() => { }}>
-              STATUS DESA
-            </WoodButton>
-            <WoodButton onClick={() => { }}>
-              PENGATURAN
-            </WoodButton>
-            <WoodButton onClick={() => { }}>
-              KREDIT
-            </WoodButton>
-          </div>
 
+            {/* Tombol Status Desa sekarang punya fungsi */}
+            <WoodButton onClick={handleShowStatus}>STATUS DESA</WoodButton>
+
+            <WoodButton onClick={() => {}}>PENGATURAN</WoodButton>
+            <WoodButton onClick={() => {}}>KREDIT</WoodButton>
+          </div>
         </div>
       )}
 
-      {menuView === 'chapterSelect' && (
+      {menuView === "chapterSelect" && (
         <div className="relative z-10 flex flex-col items-center w-full h-full pt-12">
-
           {/* Back Button */}
           <button
-            onClick={() => setMenuView('main')}
+            onClick={() => setMenuView("main")}
             className="absolute top-8 left-8 text-[#ebcca5] hover:text-white font-bold text-2xl drop-shadow-md transition-transform hover:scale-110"
             style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.8)" }}
           >
@@ -162,7 +256,7 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
               color: "#5e3a21",
               WebkitTextStroke: "2px #ebcca5",
               textShadow: "4px 4px 8px rgba(0,0,0,0.7)",
-              fontFamily: "Georgia, serif"
+              fontFamily: "Georgia, serif",
             }}
           >
             Mainkan Chapter
@@ -180,14 +274,32 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
                   : "hover:scale-105 active:scale-95 cursor-pointer"
                   }`}
               >
-                <Image src="/ui/txt box 1.png" alt="btn bg" fill className="object-fill drop-shadow-xl pointer-events-none" unoptimized />
+                <Image
+                  src="/ui/txt box 1.png"
+                  alt="btn bg"
+                  fill
+                  className="object-fill drop-shadow-xl pointer-events-none"
+                  unoptimized
+                />
 
                 {/* Icon inside button (book or lock) */}
                 <div className="relative z-10 ml-6 flex items-center justify-center w-10">
                   {chapter.locked ? (
-                    <Image src="/ui/lock 1.png" alt="lock" width={32} height={32} unoptimized />
+                    <Image
+                      src="/ui/lock 1.png"
+                      alt="lock"
+                      width={32}
+                      height={32}
+                      unoptimized
+                    />
                   ) : (
-                    <Image src="/ui/book 9.png" alt="book" width={42} height={42} unoptimized />
+                    <Image
+                      src="/ui/book 9.png"
+                      alt="book"
+                      width={42}
+                      height={42}
+                      unoptimized
+                    />
                   )}
                 </div>
 
@@ -196,8 +308,9 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
                   className="relative z-10 text-[26px] font-bold ml-6 mt-1"
                   style={{
                     color: "#5e3a21",
-                    textShadow: "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
-                    fontFamily: "Georgia, serif"
+                    textShadow:
+                      "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
+                    fontFamily: "Georgia, serif",
                   }}
                 >
                   {chapter.title}
@@ -214,23 +327,21 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
               </button>
             ))}
           </div>
-
         </div>
       )}
 
-      {/* Modal Konfirmasi */}
+      {/* ── MODAL KONFIRMASI (NEW GAME) ── */}
       {showModal && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="relative w-[400px] bg-[#3a2517] rounded-xl border-4 border-[#8B4513] shadow-2xl p-6 flex flex-col items-center">
             <div className="absolute inset-0 bg-[url('/backgrounds/kantor-desa.png')] bg-cover opacity-10 rounded-lg pointer-events-none" />
-
             <h2 className="relative z-10 text-2xl font-bold text-[#ebcca5] mb-4 text-center">
               Perhatian!
             </h2>
             <p className="relative z-10 text-[#ebcca5] text-center mb-8">
-              Memulai permainan baru akan <b>menimpa</b> progres Anda sebelumnya. Apakah Anda yakin?
+              Memulai permainan baru akan <b>menimpa</b> progres Anda
+              sebelumnya. Apakah Anda yakin?
             </p>
-
             <div className="relative z-10 flex flex-col gap-4 w-full">
               <WoodButton width="w-full" onClick={handleStartFresh}>
                 MULAI BARU
@@ -241,6 +352,85 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
               <WoodButton width="w-full" onClick={handleCloseModal}>
                 BATAL
               </WoodButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL STATUS DESA ── */}
+      {showStatusModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4">
+          <div className="relative w-full max-w-md bg-[#e8d5b5] rounded-xl border-4 border-[#8c5e35] shadow-2xl p-6 md:p-8">
+            <div className="absolute inset-0 shadow-[inset_0_0_20px_rgba(0,0,0,0.2)] rounded-lg pointer-events-none" />
+
+            <h2 className="relative z-10 text-2xl md:text-3xl font-black text-[#3b2a1a] mb-6 text-center font-serif drop-shadow-sm border-b-2 border-[#b08d6a] pb-4">
+              Status Desa Saat Ini
+            </h2>
+
+            <div className="relative z-10">
+              {savedStats ? (
+                <div className="space-y-1">
+                  <SimpleStatBar
+                    label="Kepercayaan"
+                    value={savedStats.trust}
+                    color="bg-blue-600"
+                  />
+                  <SimpleStatBar
+                    label="Kas Desa"
+                    value={savedStats.treasury}
+                    color="bg-yellow-500"
+                  />
+                  <SimpleStatBar
+                    label="Stabilitas"
+                    value={savedStats.stability}
+                    color="bg-green-600"
+                  />
+                  <SimpleStatBar
+                    label="Warisan"
+                    value={savedStats.legacy}
+                    color="bg-purple-600"
+                  />
+
+                  {/* --- TAMBAHAN KOTAK CATATAN DISINI --- */}
+                  <div className="mt-6 pt-4 border-t-2 border-dashed border-[#b08d6a]">
+                    <div className="bg-[#d4bc96]/40 rounded-lg p-4 shadow-sm">
+                      <p className="text-center text-[#5a4027] font-serif italic text-sm leading-relaxed">
+                        <span className="block font-bold text-[#8c5e35] not-italic mb-1 text-xs uppercase tracking-widest">
+                          📜 Catatan Penasihat
+                        </span>
+                        "{getStatusFeedback(savedStats)}"
+                      </p>
+                    </div>
+                  </div>
+                  {/* ----------------------------------- */}
+                </div>
+              ) : (
+                <div className="py-8 text-center">
+                  <p className="text-[#5a4027] font-serif italic text-lg">
+                    Belum ada data permainan yang tersimpan.
+                  </p>
+                  <p className="text-[#8c5e35] font-serif text-sm mt-2">
+                    Mulai petualanganmu sebagai Kepala Desa!
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="relative z-10 mt-8 flex justify-center">
+              <button
+                onClick={() => setShowStatusModal(false)}
+                className="
+                  bg-gradient-to-b from-[#8c5e35] to-[#5a4027]
+                  hover:from-[#7a502a] hover:to-[#4a331e]
+                  text-[#fcedd9] font-black text-lg font-serif
+                  px-10 py-2 md:py-3 rounded-lg
+                  border-b-4 border-[#3b2a1a]
+                  active:border-b-0 active:translate-y-1
+                  transition-all shadow-md tracking-wider
+                "
+              >
+                Tutup Lembaran
+              </button>
             </div>
           </div>
         </div>

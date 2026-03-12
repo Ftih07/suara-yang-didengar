@@ -8,9 +8,9 @@ import { GameState, ChapterData } from "@/types/chapter-data";
 import { CHAPTER_META_LIST } from "@/data";
 
 type GameScreenProps = {
-  storyData: ChapterData[];          // Semua scene dari chapter manapun
-  startSceneId: string;              // Scene awal (bisa dari chapter berapa saja)
-  onBackToMenu: () => void;          // Fungsi buat balik ke menu
+  storyData: ChapterData[]; // Semua scene dari chapter manapun
+  startSceneId: string; // Scene awal (bisa dari chapter berapa saja)
+  onBackToMenu: () => void; // Fungsi buat balik ke menu
   savedGameData?: { sceneId: string; stats: GameState } | null; // Data saved game (optional)
 };
 
@@ -19,18 +19,30 @@ const DEFAULT_STATS: GameState = {
   treasury: 50,
   stability: 50,
   legacy: 50,
-}
+};
 
 const DEBOUNCE_DELAY = 5000; // 5 seconds
 
-export default function GameScreen({ storyData, startSceneId, onBackToMenu, savedGameData }: GameScreenProps) {
+export default function GameScreen({
+  storyData,
+  startSceneId,
+  onBackToMenu,
+  savedGameData,
+}: GameScreenProps) {
   // Gunakan saved game data jika ada, kalau tidak gunakan startSceneId
   const [currentSceneId, setCurrentSceneId] = useState<string>(
-    savedGameData?.sceneId ?? startSceneId
+    savedGameData?.sceneId ?? startSceneId,
   );
 
+  // 1. STATS AKTUAL: Berubah di latar belakang tiap kali milih opsi (disimpan ke save data & ending)
   const [stats, setStats] = useState<GameState>(
-    savedGameData?.stats ?? DEFAULT_STATS
+    savedGameData?.stats ?? DEFAULT_STATS,
+  );
+
+  // 2. STATS HUD (TAMPILAN): Dikunci pada nilai awal saat chapter dimulai
+  // Kita tidak butuh fungsi setDisplayStats karena nilainya sengaja dibuat statis selama chapter berjalan
+  const [displayStats] = useState<GameState>(
+    savedGameData?.stats ?? DEFAULT_STATS,
   );
 
   const [showEnding, setShowEnding] = useState(false);
@@ -38,7 +50,7 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
   // Map untuk O(1) scene lookup
   const sceneMap = useMemo(
     () => new Map(storyData.map((s) => [s.id, s])),
-    [storyData]
+    [storyData],
   );
 
   // Deteksi judul chapter aktif
@@ -57,12 +69,11 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialMount = useRef(true);
 
-
-
-
   // Pindahkan character selalu di sebelah kanan layar
-  const currentScene = sceneMap.get(currentSceneId)!;;
-  const isPlayer = currentScene.characterName.includes("Anda") || currentScene.characterName.includes("Pak Kades");
+  const currentScene = sceneMap.get(currentSceneId)!;
+  const isPlayer =
+    currentScene.characterName.includes("Anda") ||
+    currentScene.characterName.includes("Pak Kades");
   const characterPosClass = "right-5 md:right-[15%]";
 
   // Immediate autosave saat pindah chapter/scene
@@ -140,7 +151,11 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
     }
   };
 
-  const handleChoice = (e: React.MouseEvent, nextId: string, effect?: Partial<GameState>) => {
+  const handleChoice = (
+    e: React.MouseEvent,
+    nextId: string,
+    effect?: Partial<GameState>,
+  ) => {
     e.stopPropagation();
     // Abaikan klik pilihan jika sedang ngetik (atau bisa auto-skip dulu)
     if (isTypingRef.current) {
@@ -153,8 +168,14 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
       setStats((prev) => ({
         ...prev,
         trust: Math.min(100, Math.max(0, prev.trust + (effect.trust || 0))),
-        treasury: Math.min(100, Math.max(0, prev.treasury + (effect.treasury || 0))),
-        stability: Math.min(100, Math.max(0, prev.stability + (effect.stability || 0))),
+        treasury: Math.min(
+          100,
+          Math.max(0, prev.treasury + (effect.treasury || 0)),
+        ),
+        stability: Math.min(
+          100,
+          Math.max(0, prev.stability + (effect.stability || 0)),
+        ),
         legacy: Math.min(100, Math.max(0, prev.legacy + (effect.legacy || 0))),
       }));
     }
@@ -173,15 +194,22 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
     }
   };
 
+  // Helper: Apakah sekarang waktunya menampilkan pilihan?
+  const showChoices =
+    !isTyping && currentScene.choices && currentScene.choices.length > 0;
+
   return (
     <div
       className="relative w-full h-screen overflow-hidden bg-black text-white font-sans"
       onClick={handleSkipTyping}
     >
-
       {/* Ending Screen Overlay */}
       {showEnding && (
-        <EndingScreen stats={stats} lastSceneId={currentSceneId} onBackToMenu={onBackToMenu} />
+        <EndingScreen
+          stats={stats}
+          lastSceneId={currentSceneId}
+          onBackToMenu={onBackToMenu}
+        />
       )}
 
       {/* Tombol Back ke Menu (Pojok Kanan Atas) */}
@@ -207,27 +235,50 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
       )}
 
       {/* --- LAYER 2: STATS HUD --- */}
-      <div className="absolute top-5 left-5 z-20 bg-slate-800/90 border-2 border-yellow-600 p-4 rounded-lg shadow-lg w-64">
+      <div className="absolute top-5 left-5 z-20 bg-slate-800/90 backdrop-blur-sm border-2 border-yellow-600 p-4 rounded-lg shadow-lg w-64">
         {activeChapterTitle && (
           <p className="text-yellow-400 text-[10px] uppercase tracking-widest mb-2 truncate font-semibold">
             {activeChapterTitle}
           </p>
         )}
-        <h3 className="text-yellow-500 font-bold mb-2 uppercase tracking-wider text-sm">Status Desa</h3>
-        <StatBar label="Kepercayaan" value={stats.trust} color="bg-blue-500" />
-        <StatBar label="Kas Desa" value={stats.treasury} color="bg-yellow-500" />
-        <StatBar label="Stabilitas" value={stats.stability} color="bg-green-500" />
-        <StatBar label="Warisan" value={stats.legacy} color="bg-purple-400" />
+
+        <h3 className="text-yellow-500 font-bold mb-2 uppercase tracking-wider text-sm">
+          Status Desa
+        </h3>
+
+        <StatBar
+          label="Kepercayaan"
+          value={displayStats.trust}
+          color="bg-blue-500"
+        />
+        <StatBar
+          label="Kas Desa"
+          value={displayStats.treasury}
+          color="bg-yellow-500"
+        />
+        <StatBar
+          label="Stabilitas"
+          value={displayStats.stability}
+          color="bg-green-500"
+        />
+        <StatBar
+          label="Warisan"
+          value={displayStats.legacy}
+          color="bg-purple-400"
+        />
       </div>
 
       {/* --- LAYER 3: CHARACTER --- */}
-      {currentScene.characterImage && (
-        <div className={`absolute bottom-[200px] ${characterPosClass} z-10 w-[350px] h-[600px] md:w-[450px] md:h-[800px] transition-all duration-500 pointer-events-none`}>
+      {/* Karakter akan HILANG otomatis kalau showChoices sedang true */}
+      {currentScene.characterImage && !showChoices && (
+        <div
+          className={`absolute bottom-[200px] ${characterPosClass} z-10 w-[350px] h-[600px] md:w-[450px] md:h-[800px] transition-all duration-500 pointer-events-none`}
+        >
           <Image
             src={currentScene.characterImage}
             alt="character"
             fill
-            className={`object-contain object-bottom drop-shadow-2xl ${isPlayer ? 'scale-x-[-1]' : ''}`}
+            className={`object-contain object-bottom drop-shadow-2xl ${isPlayer ? "scale-x-[-1]" : ""}`}
             unoptimized
           />
         </div>
@@ -235,14 +286,13 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
 
       {/* --- LAYER 4: DIALOGUE & CHOICES CONTAINER --- */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl flex flex-col gap-2 pointer-events-none">
-
         {/* TEXT DIALOG BOX - Hidden when choices are shown */}
-        {!((!isTyping && currentScene.choices && currentScene.choices.length > 0)) && (
+        {!showChoices && (
           <div
             className="relative w-full min-h-[220px] max-h-[50vh] cursor-pointer pointer-events-auto shrink-0 flex flex-col"
             onClick={handleSkipTyping}
           >
-            {/* Latar Belakang Kotak Dialog */}
+            {/* ... (Isi Text Dialog Box kamu biarkan sama persis seperti sebelumnya) ... */}
             <div className="absolute inset-0 z-0 drop-shadow-2xl">
               <Image
                 src={"/ui/txt box 1.png"}
@@ -252,21 +302,16 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
                 unoptimized
               />
             </div>
-
-            {/* Frame / Border */}
             <div className="absolute inset-0 z-10 pointer-events-none">
               <Image
-                src={'/ui/dialog border.png'}
+                src={"/ui/dialog border.png"}
                 alt="dialog border"
                 fill
                 className="object-fill"
                 unoptimized
               />
             </div>
-
-            {/* Konten Text */}
             <div className="relative z-20 h-full p-8 flex flex-col pt-12 flex-1">
-              {/* Tag Nama */}
               <div className="absolute -top-3 left-8 z-30 drop-shadow-xl">
                 <div className="relative inline-block px-10 py-3">
                   <div className="absolute inset-0 bg-[#3b2a1a] border-2 border-[#b08d6a] rounded-t-xl rounded-br-xl opacity-90 skew-x-[-10deg]"></div>
@@ -275,61 +320,87 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
                   </span>
                 </div>
               </div>
-
-              <div className="overflow-y-auto pr-4 mb-2 mt-4 shrink flex-col flex flex-1">
+              <div className="overflow-y-auto pl-8 pr-12 md:pl-10 md:pr-14 mb-2 mt-4 shrink flex-col flex flex-1">
                 <p className="text-[#3b2a1a] text-lg md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm min-h-[80px]">
                   {displayedText}
-                  {isTyping && <span className="inline-block w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>}
+                  {isTyping && (
+                    <span className="inline-block w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>
+                  )}
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* CHOICES - Tampil setelah dialog selesai dengan layout grid 2 kolom */}
-        {!isTyping && currentScene.choices && currentScene.choices.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pointer-events-auto w-full">
-            {currentScene.choices.map((choice, index) => (
-              <button
-                key={index}
-                onClick={(e) => handleChoice(e, choice.nextId, choice.effect)}
-                className="group relative w-full min-h-[200px] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
-              >
-                {/* Background box */}
-                <div className="absolute inset-0 z-0 drop-shadow-2xl">
-                  <Image
-                    src={"/ui/txt box 1.png"}
-                    alt="choice box"
-                    fill
-                    className="object-fill opacity-95 group-hover:opacity-100"
-                    unoptimized
-                  />
-                </div>
+        {/* CHOICES CONTAINER - Tampil setelah dialog selesai */}
+        {showChoices && (
+          <div className="flex flex-col items-center w-full pointer-events-auto">
+            {/* ── KATA-KATA DRAMATIS KADES ── */}
+            <div className="mb-10 w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite]">
+              {/* Background gradient hitam memanjang biar teks sangat kontras */}
+              <div className="relative px-4 py-4 md:py-6 bg-gradient-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
+                {/* Garis emas atas */}
+                <div className="absolute top-0 w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#d4bc96] to-transparent"></div>
 
-                {/* Border frame */}
-                <div className="absolute inset-0 z-10 pointer-events-none">
-                  <Image
-                    src={'/ui/dialog border.png'}
-                    alt="choice border"
-                    fill
-                    className="object-fill"
-                    unoptimized
-                  />
-                </div>
+                <p
+                  className="text-white text-base md:text-2xl font-black font-serif tracking-[0.2em] md:tracking-[0.3em] text-center uppercase relative z-10"
+                  style={{
+                    textShadow:
+                      "0px 4px 15px rgba(0,0,0,1), 2px 2px 0px rgba(140, 94, 53, 0.8), -1px -1px 0px rgba(0,0,0,0.8)",
+                  }}
+                >
+                  ✧ Keputusan Ada Di Tanganmu ✧
+                </p>
 
-                {/* Text content */}
-                <div className="relative z-20 px-8 py-8 flex items-center justify-center h-full">
-                  <p className="text-[#3b2a1a] text-base md:text-lg font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
-                    {choice.text}
-                  </p>
-                </div>
-              </button>
-            ))}
+                {/* Garis emas bawah */}
+                <div className="absolute bottom-0 w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#d4bc96] to-transparent"></div>
+              </div>
+            </div>
+
+            {/* Grid Tombol Pilihan */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+              {currentScene.choices!.map((choice, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => handleChoice(e, choice.nextId, choice.effect)}
+                  className="group relative w-full min-h-[200px] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                >
+                  {/* Background box */}
+                  <div className="absolute inset-0 z-0 drop-shadow-2xl">
+                    <Image
+                      src={"/ui/txt box 1.png"}
+                      alt="choice box"
+                      fill
+                      className="object-fill opacity-95 group-hover:opacity-100"
+                      unoptimized
+                    />
+                  </div>
+                  {/* Border frame */}
+                  <div className="absolute inset-0 z-10 pointer-events-none">
+                    <Image
+                      src={"/ui/dialog border.png"}
+                      alt="choice border"
+                      fill
+                      className="object-fill"
+                      unoptimized
+                    />
+                  </div>
+                  {/* Text content */}
+                  <div className="relative z-20 px-8 py-8 flex items-center justify-center h-full">
+                    <p className="text-[#3b2a1a] text-base md:text-lg font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
+                      {choice.text}
+                    </p>
+                  </div>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* CONTINUE BUTTON - Untuk scene dengan nextSceneId tanpa choices */}
-        {!isTyping && currentScene.nextSceneId && currentScene.nextSceneId !== "" &&
+        {!isTyping &&
+          currentScene.nextSceneId &&
+          currentScene.nextSceneId !== "" &&
           (!currentScene.choices || currentScene.choices.length === 0) && (
             <button
               onClick={handleContinue}
@@ -349,7 +420,7 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
               {/* Border frame */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <Image
-                  src={'/ui/dialog border.png'}
+                  src={"/ui/dialog border.png"}
                   alt="continue border"
                   fill
                   className="object-fill"
@@ -368,12 +439,13 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
           )}
 
         {/* BACK TO MENU - Untuk scene ending (no nextSceneId, no choices) */}
-        {!isTyping && (!currentScene.nextSceneId || currentScene.nextSceneId === "") &&
+        {!isTyping &&
+          (!currentScene.nextSceneId || currentScene.nextSceneId === "") &&
           (!currentScene.choices || currentScene.choices.length === 0) && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                markChapterPlayed(currentSceneId.split("-")[0], stats); // Tandai chapter sebagai sudah dimainkan
+                markChapterPlayed(startSceneId.split("_")[0], stats); // Gunakan startSceneId agar ID selalu konsisten, e.g. "ch4"
                 setShowEnding(true);
               }}
               className="group relative w-full min-h-[70px] pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
@@ -392,7 +464,7 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
               {/* Border frame */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <Image
-                  src={'/ui/dialog border.png'}
+                  src={"/ui/dialog border.png"}
                   alt="ending border"
                   fill
                   className="object-fill"
@@ -413,7 +485,15 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
   );
 }
 
-function StatBar({ label, value, color }: { label: string, value: number, color: string }) {
+function StatBar({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
     <div className="mb-2 last:mb-0">
       <div className="flex justify-between text-xs mb-1 font-bold text-gray-300">

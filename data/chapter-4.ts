@@ -1,5 +1,5 @@
-// data/chapter-5.ts
-// Chapter 5: Satu Keputusan Besar Terakhir
+// data/chapter-4.ts
+// Chapter 4: Ketidakpuasan Warga Meledak
 // Konsep Matematika: Model Pertumbuhan (Eksponensial vs. Linier) & Expected Value / Risk Assessment
 
 import type { ChapterData, ChapterMeta, EndingDef, EndingId } from "../types/chapter-data";
@@ -20,8 +20,8 @@ export const CHAPTER_META: ChapterMeta = {
 //  Semua asset Chapter 5 menggunakan file SVG sebagai placeholder.
 //  Ganti path ke PNG asli saat artwork sudah tersedia.
 // =====================================================================
-const BG_POS_RONDA = "/backgrounds/Pos-Ronda.png";
-const BG_HALAMAN_BALAI_DESA = "/backgrounds/luar-kantor-kepala-desa.jpg";
+const BG_POS_RONDA = "/backgrounds/Pos-Ronda.webp";
+const BG_HALAMAN_BALAI_DESA = "/backgrounds/luar-kantor-kepala-desa.webp";
 
 const CHAR_KADES = "/characters/kades-normal.png";
 const CHAR_PAK_BAYU = "/characters/Bayu-Pemuda-Kritis.png";

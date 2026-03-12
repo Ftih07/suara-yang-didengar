@@ -19,7 +19,7 @@ export const CHAPTER_META: ChapterMeta = {
 //  Semua asset Chapter 5 menggunakan file SVG sebagai placeholder.
 //  Ganti path ke PNG asli saat artwork sudah tersedia.
 // =====================================================================
-const BG_KANTOR_MALAM = "/backgrounds/kantor-kepala-desa-malam.png";
+const BG_KANTOR_MALAM = "/backgrounds/kantor-kepala-desa-malam.webp";
 const CHAR_PAK_HERU = "/characters/Pak-Heru.png";
 const CHAR_BAYU = "/characters/Bayu-pemuda-kritis.png";
 const CHAR_PAK_DARMA = "/characters/Pak-Darma.png";

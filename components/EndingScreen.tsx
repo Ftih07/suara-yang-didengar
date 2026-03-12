@@ -5,273 +5,352 @@ import { useEffect, useState } from "react";
 import { ALL_ENDINGS } from "@/data";
 
 // -------------------------
-// Chapter 4 Logic
+// Chapter Logic (Skips repeated logic from previous turn)
+// ...
 // -------------------------
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  ENDING DETECTION — per chapter, berdasarkan akumulasi stats
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Chapter 4: Ketidakpuasan Warga Meledak
- * Deteksi berdasarkan keputusan apa yang membentuk trust & stability:
- *   A1 (Mediasi)       → trust & stability naik, legacy naik
- *   A2 (Referendum)    → trust naik tinggi, tapi stability drop
- *   B1 (Bailout Legal) → treasury turun drastis, legacy turun
- *   B2 (Tangan Besi)   → trust turun drastis, treasury naik
- */
-function detectCh4Ending(stats: GameState): EndingId {
-    const { trust, treasury, stability, legacy } = stats;
-
-    // B2: trust hancur akibat kekerasan, tapi kas selamat
-    if (trust <= 25 && treasury >= 55)
-        return "ch4_B2";
-
-    // B1: kas bocor parah akibat bailout, warisan rusak
-    if (treasury <= 30 && legacy <= 40)
-        return "ch4_B1";
-
-    // A2: trust tinggi (warga salut), tapi stabilitas hancur akibat polarisasi
-    if (trust >= 65 && stability <= 40)
-        return "ch4_A2";
-
-    // A1: mediasi sukses — trust, stability, legacy semuanya sehat
-    if (trust >= 60 && stability >= 52 && legacy >= 50)
-        return "ch4_A1";
-
-    // Fallback A1 jika stats positif secara umum
-    if (trust >= 55 && stability >= 50)
-        return "ch4_A1";
-
-    return "unknown";
+function detectCh1Ending(stats: GameState): EndingId {
+  const { trust, treasury, stability } = stats;
+  // Logika tebak ending Ch 1 dari stats dasar (50)
+  if (trust >= 65 && treasury < 50) return "ch1_B1"; // Reformis (Beras dibongkar, kas turun)
+  if (trust <= 35 && stability >= 60) return "ch1_A2"; // Birokrat (Beras ditahan, stabil)
+  if (stability <= 40 && treasury >= 50) return "ch1_A1"; // Teknokrat (Coret nama, stabil anjlok)
+  return "ch1_B2"; // Humanis Karismatik (Default fallback Ch 1)
 }
 
-/**
- * Chapter 5: Satu Keputusan Besar Terakhir
- * Deteksi berdasarkan pilihan korporatisasi vs kemandirian:
- *   A1 (Sosialis-Korporat) → kas meledak, trust tinggi, legacy hancur
- *   A2 (Kapitalis Murni)   → kas max, trust hancur, inequality ekstrem
- *   B1 (Koperasi Mandiri)  → semua pilar positif moderat
- *   B2 (Tradisionalis)     → legacy tinggi, kas minus, stabilitas max
- */
+function detectCh2Ending(stats: GameState): EndingId {
+  const { trust, treasury, stability } = stats;
+  if (treasury <= 35 && stability >= 65) return "ch2_B1"; // Pompa mahal (Kas bocor, stabil damai)
+  if (trust <= 40 && stability <= 40) return "ch2_B2"; // Paksa bagi sumur (Trust & stabil hancur)
+  if (treasury >= 60 && trust <= 40) return "ch2_A2"; // Pro-sawah (Kas aman, trust hancur)
+  return "ch2_A1"; // Pro-warga (Kompensasi waktu)
+}
+
+function detectCh3Ending(stats: GameState): EndingId {
+  const { treasury, stability, legacy } = stats;
+  if (legacy <= 30 && treasury >= 70) return "ch3_B2"; // Oportunis (Jual cepat, warisan hancur)
+  if (legacy >= 70 && treasury <= 40) return "ch3_A2"; // Idealis (Tolak pabrik, warisan utuh)
+  if (treasury >= 65 && stability <= 45) return "ch3_B1"; // Sewa majemuk (Kas naik, investor ngambek)
+  return "ch3_A1"; // Kompromi tebang beringin
+}
+
+function detectCh4Ending(stats: GameState): EndingId {
+  const { trust, treasury, stability, legacy } = stats;
+  if (trust <= 25 && treasury >= 55) return "ch4_B2";
+  if (treasury <= 30 && legacy <= 40) return "ch4_B1";
+  if (trust >= 65 && stability <= 40) return "ch4_A2";
+  if (trust >= 60 && stability >= 52 && legacy >= 50) return "ch4_A1";
+  if (trust >= 55 && stability >= 50) return "ch4_A1";
+  return "unknown";
+}
+
 function detectCh5Ending(stats: GameState): EndingId {
-    const { trust, treasury, stability, legacy } = stats;
-
-    // A2: kas meledak tapi trust & legacy hancur (oligarki lokal)
-    if (treasury >= 90 && trust <= 20)
-        return "ch5_A2";
-
-    // B2: legacy & stabilitas sangat tinggi, kas habis (tradisionalis ekstrem)
-    if (legacy >= 80 && treasury <= 25)
-        return "ch5_B2";
-
-    // A1: kas besar & trust tinggi, tapi legacy rendah (korporat + UBI)
-    if (treasury >= 75 && trust >= 70 && legacy <= 30)
-        return "ch5_A1";
-
-    // B1: semua pilar seimbang positif (koperasi mandiri)
-    if (trust >= 65 && stability >= 65 && legacy >= 60)
-        return "ch5_B1";
-
-    // Secondary fallbacks berdasarkan dominant stat
-    if (legacy <= 35 && treasury >= 70) return "ch5_A1"; // kaya tapi kehilangan jati diri
-    if (legacy >= 65) return "ch5_B2";                   // masih kuat tradisi
-    if (treasury >= 60) return "ch5_A2";                  // dominan ekonomi
-
-    return "unknown";
+  const { trust, treasury, stability, legacy } = stats;
+  if (treasury >= 90 && trust <= 20) return "ch5_A2";
+  if (legacy >= 80 && treasury <= 25) return "ch5_B2";
+  if (treasury >= 75 && trust >= 70 && legacy <= 30) return "ch5_A1";
+  if (trust >= 65 && stability >= 65 && legacy >= 60) return "ch5_B1";
+  if (legacy <= 35 && treasury >= 70) return "ch5_A1";
+  if (legacy >= 65) return "ch5_B2";
+  if (treasury >= 60) return "ch5_A2";
+  return "unknown";
 }
 
 function detectEndingId(stats: GameState, lastSceneId?: string): EndingId {
-    if (lastSceneId?.startsWith("ch4_") || lastSceneId?.startsWith("chA_ending"))
-        return detectCh4Ending(stats);
-    if (lastSceneId?.startsWith("ch5_") || lastSceneId?.startsWith("chA_end"))
-        return detectCh5Ending(stats);
-    return "unknown";
+  if (lastSceneId?.startsWith("ch1_")) return detectCh1Ending(stats);
+  if (lastSceneId?.startsWith("ch2_")) return detectCh2Ending(stats);
+  if (lastSceneId?.startsWith("ch3_")) return detectCh3Ending(stats);
+  if (lastSceneId?.startsWith("ch4_") || lastSceneId?.startsWith("chA_ending"))
+    return detectCh4Ending(stats);
+  if (lastSceneId?.startsWith("ch5_") || lastSceneId?.startsWith("chA_end"))
+    return detectCh5Ending(stats);
+  return "unknown";
 }
 
-
+// ─────────────────────────────────────────────────────────────────────────────
+// (Batas copas: Lanjut ke type StatBarProps dan fungsi AnimatedStatBar di kodemu)
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  ANIMATED STAT BAR
+//  ANIMATED STAT BAR (Updated to classic/book style)
 // ─────────────────────────────────────────────────────────────────────────────
 
 type StatBarProps = {
-    label: string;
-    value: number;
-    color: string;
-    delay?: number; // ms animation delay
+  label: string;
+  value: number;
+  color: string;
+  delay?: number;
 };
 
 function AnimatedStatBar({ label, value, color, delay = 0 }: StatBarProps) {
-    const [width, setWidth] = useState(0);
-    useEffect(() => {
-        const t = setTimeout(() => setWidth(value), 120 + delay);
-        return () => clearTimeout(t);
-    }, [value, delay]);
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(value), 120 + delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
 
-    const quality =
-        value >= 75 ? "text-green-400" :
-            value >= 45 ? "text-yellow-400" :
-                "text-red-400";
+  // Keep color logic but change to serif and deeper colors
+  const qualityColor =
+    value >= 75
+      ? "text-green-700"
+      : value >= 45
+        ? "text-[#b08d6a]"
+        : "text-red-700";
 
-    return (
-        <div className="mb-4">
-            <div className="flex justify-between items-baseline mb-1">
-                <span className="text-sm font-semibold text-gray-300 uppercase tracking-wide">{label}</span>
-                <span className={`text-xl font-black tabular-nums ${quality}`}>{value}</span>
-            </div>
-            <div className="w-full bg-slate-700 h-3 rounded-full overflow-hidden">
-                <div
-                    className={`h-full ${color} rounded-full transition-all duration-1000 ease-out shadow-lg`}
-                    style={{ width: `${width}%` }}
-                />
-            </div>
-        </div>
-    );
+  return (
+    <div className="mb-4">
+      <div className="flex justify-between items-baseline mb-1">
+        <span className="text-sm font-bold text-[#3b2a1a] uppercase tracking-wide font-serif">
+          {label}
+        </span>
+        <span
+          className={`text-xl font-black tabular-nums ${qualityColor} font-serif`}
+        >
+          {value}%
+        </span>
+      </div>
+      {/* Simple bar for book page style */}
+      <div className="w-full bg-[#d4bc96]/50 border border-[#b08d6a] h-3 rounded-full overflow-hidden">
+        <div
+          className={`h-full ${color} rounded-full transition-all duration-1000 ease-out shadow-inner`}
+          style={{ width: `${width}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  MAIN COMPONENT
+//  MAIN COMPONENT (Book Page Design)
 // ─────────────────────────────────────────────────────────────────────────────
 
 type Props = {
-    stats: GameState;
-    lastSceneId?: string; // Untuk keperluan debug / validasi
-    onBackToMenu: () => void;
+  stats: GameState;
+  lastSceneId?: string;
+  onBackToMenu: () => void;
 };
 
+export default function EndingScreen({
+  stats,
+  lastSceneId,
+  onBackToMenu,
+}: Props) {
+  const endingId = detectEndingId(stats, lastSceneId);
+  const ending: EndingDef = ALL_ENDINGS[endingId] || ALL_ENDINGS["unknown"];
 
-export default function EndingScreen({ stats, lastSceneId, onBackToMenu }: Props) {
-    const endingId = detectEndingId(stats, lastSceneId);
-    const ending: EndingDef = ALL_ENDINGS[endingId] || ALL_ENDINGS["unknown"];
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), 50);
+    return () => clearTimeout(t);
+  }, []);
 
-    // Fade-in state
-    const [visible, setVisible] = useState(false);
-    useEffect(() => {
-        const t = setTimeout(() => setVisible(true), 50);
-        return () => clearTimeout(t);
-    }, []);
-
-    return (
-        <div
-            className={`
+  return (
+    <div
+      className={`
         fixed inset-0 z-50 flex items-center justify-center
-        bg-black/95 backdrop-blur-sm
-        transition-opacity duration-700
+        bg-black/80 backdrop-blur-md
+        transition-opacity duration-700 p-4
         ${visible ? "opacity-100" : "opacity-0"}
       `}
+    >
+      {/* 1. FRAME BUKU UTAMA (Background langsung ditaruh di sini, overflow-hidden biar rapi) */}
+      <div className="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-[#e8d5b5] rounded-xl border-4 border-[#8c5e35] shadow-2xl overflow-hidden">
+        {/* Efek Shadow di dalam buku (tetap diam/statis) */}
+        <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(0,0,0,0.2)] pointer-events-none z-10"></div>
+
+        {/* 2. KONTEN YANG BISA DI-SCROLL */}
+        <div
+          className="relative z-20 overflow-y-auto px-4 py-8 md:px-12 md:py-10
+            [&::-webkit-scrollbar]:w-3.5
+            [&::-webkit-scrollbar-track]:bg-[#e8d5b5]
+            [&::-webkit-scrollbar-track]:rounded-r-xl
+            [&::-webkit-scrollbar-thumb]:bg-[#8c5e35]
+            [&::-webkit-scrollbar-thumb]:rounded-full
+            [&::-webkit-scrollbar-thumb]:border-[3px]
+            [&::-webkit-scrollbar-thumb]:border-solid
+            [&::-webkit-scrollbar-thumb]:border-[#e8d5b5]
+            hover:[&::-webkit-scrollbar-thumb]:bg-[#5a4027]
+            [scrollbar-width:thin] 
+            [scrollbar-color:#8c5e35_#e8d5b5]
+          "
         >
-            {/* Scrollable inner container */}
-            <div className="w-full max-w-3xl max-h-[95vh] overflow-y-auto px-4 py-8">
-
-                {/* ── HEADER ── */}
-                <div className="text-center mb-8">
-                    <p className="text-gray-500 text-sm uppercase tracking-[0.3em] mb-2">
-                        — Nasib Desa Amanah —
-                    </p>
-                    <div className="inline-block text-6xl mb-3">{ending.icon}</div>
-                    <div className={`inline-block px-3 py-1 rounded-full text-xs font-black tracking-widest mb-4 ${ending.badgeBg}`}>
-                        {ending.badgeLabel}
-                    </div>
-                    <h1 className={`text-4xl md:text-5xl font-black mb-2 ${ending.accentClass}`}>
-                        {ending.title}
-                    </h1>
-                    <p className="text-gray-400 text-sm italic">{ending.subtitle}</p>
-                </div>
-
-                {/* ── STAT ACCUMULATION PANEL ── */}
-                <div className="bg-slate-800/80 border border-slate-600 rounded-2xl p-6 mb-6 shadow-2xl">
-                    <h2 className="text-yellow-500 font-bold uppercase tracking-widest text-xs mb-5 flex items-center gap-2">
-                        <span className="inline-block w-8 border-t border-yellow-600" />
-                        Akumulasi Status Pilar Desa
-                        <span className="inline-block flex-1 border-t border-yellow-600" />
-                    </h2>
-                    <AnimatedStatBar label="Kepercayaan Warga" value={stats.trust} color="bg-blue-500" delay={0} />
-                    <AnimatedStatBar label="Kas Desa / Ekonomi" value={stats.treasury} color="bg-yellow-500" delay={150} />
-                    <AnimatedStatBar label="Stabilitas Politik" value={stats.stability} color="bg-green-500" delay={300} />
-                    <AnimatedStatBar label="Warisan Budaya" value={stats.legacy} color="bg-purple-500" delay={450} />
-                </div>
-
-                {/* ── ENDING CARD ── */}
-                <div
-                    className={`
-            bg-linear-to-br ${ending.bgClass}
-            border-2 ${ending.borderClass}
-            rounded-2xl p-6 mb-6 shadow-2xl
-          `}
-                >
-                    <p className="text-gray-200 leading-relaxed text-base mb-6">
-                        {ending.description}
-                    </p>
-
-                    {ending.effects.length > 0 && (
-                        <>
-                            <hr className="border-slate-600 mb-4" />
-                            <h3 className="text-xs font-black uppercase tracking-widest text-gray-500 mb-4">
-                                Dampak Keputusan Akhir
-                            </h3>
-                            <ul className="space-y-2">
-                                {ending.effects.map((e, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-sm">
-                                        <span className={`mt-0.5 shrink-0 font-black text-base ${e.positive ? "text-green-400" : "text-red-400"}`}>
-                                            {e.positive ? "▲" : "▼"}
-                                        </span>
-                                        <span>
-                                            <span className="font-bold text-gray-300">{e.label}:</span>{" "}
-                                            <span className="text-gray-400">{e.value}</span>
-                                        </span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </>
-                    )}
-                </div>
-
-                {/* ── SCORE SUMMARY ── */}
-                <div className="grid grid-cols-4 gap-3 mb-8">
-                    {[
-                        { label: "Kepercayaan", value: stats.trust, color: "text-blue-400", icon: "👥" },
-                        { label: "Kas Desa", value: stats.treasury, color: "text-yellow-400", icon: "💰" },
-                        { label: "Stabilitas", value: stats.stability, color: "text-green-400", icon: "⚖️" },
-                        { label: "Warisan", value: stats.legacy, color: "text-purple-400", icon: "🌿" },
-                    ].map((s) => (
-                        <div key={s.label} className="bg-slate-800/70 border border-slate-700 rounded-xl p-3 text-center">
-                            <div className="text-2xl mb-1">{s.icon}</div>
-                            <div className={`text-2xl font-black ${s.color}`}>{s.value}</div>
-                            <div className="text-[10px] text-gray-500 uppercase tracking-wide mt-1">{s.label}</div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* ── QUOTE / CLOSING ── */}
-                <blockquote className="border-l-4 border-yellow-600 pl-4 mb-8 italic text-gray-400 text-sm leading-relaxed">
-                    "Sejarah akan menulis apakah tanganmu membangun surga untuk wargamu,
-                    atau malah membangun neraka yang indah."
-                    <footer className="mt-1 text-gray-600 not-italic">— Mbah Darmo, Sesepuh Desa Amanah</footer>
-                </blockquote>
-
-                {/* ── BACK TO MENU ── */}
-                <div className="text-center">
-                    <button
-                        onClick={onBackToMenu}
-                        className="
-              bg-linear-to-r from-yellow-700 to-amber-700
-              hover:from-yellow-600 hover:to-amber-600
-              text-white font-black text-lg
-              px-10 py-4 rounded-xl
-              border-b-4 border-yellow-900
-              active:border-b-0 active:translate-y-1
-              transition-all shadow-xl
-              tracking-wide
-            "
-                    >
-                        ✦ Kembali ke Menu Utama ✦
-                    </button>
-                    <p className="text-gray-600 text-xs mt-3">
-                        Terima kasih telah bermain Suara yang Didengar
-                    </p>
-                </div>
+          <div className="text-center mb-10">
+            <p className="text-[#8c5e35] text-sm md:text-base uppercase tracking-[0.3em] font-bold mb-3 font-serif">
+              — Nasib Desa Amanah —
+            </p>
+            <div className="inline-block text-5xl md:text-6xl mb-4 drop-shadow-md">
+              {ending.icon}
             </div>
+
+            <div className="mb-2">
+              <div
+                className={`inline-block px-4 py-1.5 rounded-sm border border-[#3b2a1a] text-xs font-black tracking-widest ${ending.badgeBg} text-white shadow-sm font-serif`}
+              >
+                {ending.badgeLabel}
+              </div>
+            </div>
+
+            <h1 className="text-3xl md:text-5xl font-black mb-3 text-[#3b2a1a] font-serif drop-shadow-sm">
+              {ending.title}
+            </h1>
+            <p className="text-[#5a4027] text-sm md:text-base italic font-serif font-semibold">
+              {ending.subtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* ── LEFT COLUMN: STATS & ICON SUMMARY ── */}
+            <div className="space-y-6">
+              {/* Pillar Desa Panel (Parchment/book style) */}
+              <div className="bg-[#fcedd9] border-2 border-[#b08d6a] rounded-lg p-5 shadow-md">
+                <h2 className="text-[#8c5e35] font-black uppercase tracking-widest text-sm mb-5 text-center font-serif border-b-2 border-[#b08d6a] pb-2">
+                  Status Akhir Pilar Desa
+                </h2>
+                <AnimatedStatBar
+                  label="Kepercayaan"
+                  value={stats.trust}
+                  color="bg-blue-600"
+                  delay={0}
+                />
+                <AnimatedStatBar
+                  label="Kas Desa"
+                  value={stats.treasury}
+                  color="bg-yellow-500"
+                  delay={150}
+                />
+                <AnimatedStatBar
+                  label="Stabilitas"
+                  value={stats.stability}
+                  color="bg-green-600"
+                  delay={300}
+                />
+                <AnimatedStatBar
+                  label="Warisan"
+                  value={stats.legacy}
+                  color="bg-purple-600"
+                  delay={450}
+                />
+              </div>
+
+              {/* Detailed Icon Row - from image_7.png */}
+              <div className="grid grid-cols-4 gap-2">
+                {[
+                  {
+                    label: "Trust",
+                    value: stats.trust,
+                    color: "text-blue-700",
+                    icon: "👥",
+                  },
+                  {
+                    label: "Kas",
+                    value: stats.treasury,
+                    color: "text-yellow-600",
+                    icon: "💰",
+                  },
+                  {
+                    label: "Stabil",
+                    value: stats.stability,
+                    color: "text-green-700",
+                    icon: "⚖️",
+                  },
+                  {
+                    label: "Warisan",
+                    value: stats.legacy,
+                    color: "text-purple-700",
+                    icon: "🌿",
+                  },
+                ].map((s) => (
+                  <div
+                    key={s.label}
+                    className="bg-[#fcedd9] border border-[#b08d6a] rounded-md p-2 text-center shadow-sm"
+                  >
+                    <div className="text-xl mb-1">{s.icon}</div>
+                    <div
+                      className={`text-lg md:text-xl font-black ${s.color} font-serif`}
+                    >
+                      {s.value}
+                    </div>
+                    <div className="text-[9px] md:text-[10px] text-[#5a4027] font-bold uppercase tracking-wide mt-1 font-serif">
+                      {s.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ── RIGHT COLUMN: ENDING CARD & QUOTE ── */}
+            <div className="flex flex-col">
+              {/* Ending Card Panel (Book style) */}
+              <div className="flex-grow bg-[#fcedd9] border-2 border-[#b08d6a] rounded-lg p-5 md:p-6 shadow-md mb-6">
+                <p className="text-[#3b2a1a] leading-relaxed text-base md:text-lg font-serif font-medium mb-6">
+                  {ending.description}
+                </p>
+
+                {ending.effects.length > 0 && (
+                  <>
+                    <hr className="border-[#b08d6a] mb-4" />
+                    <h3 className="text-xs font-black uppercase tracking-widest text-[#8c5e35] mb-4 font-serif">
+                      Dampak Keputusan:
+                    </h3>
+                    <ul className="space-y-3 bullet-serif-brown font-serif">
+                      {ending.effects.map((e, i) => (
+                        <li
+                          key={i}
+                          className="flex items-start gap-3 text-sm md:text-base"
+                        >
+                          <span
+                            className={`mt-0.5 shrink-0 font-black ${e.positive ? "text-green-600" : "text-red-600"}`}
+                          >
+                            {e.positive ? "▲" : "▼"}
+                          </span>
+                          <span className="font-serif text-[#3b2a1a]">
+                            <span className="font-bold">{e.label}:</span>{" "}
+                            <span className="text-[#5a4027]">{e.value}</span>
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+
+              {/* Quote (Parchment book quote style) */}
+              <blockquote className="border-l-4 border-[#8c5e35] pl-4 italic text-[#5a4027] text-sm md:text-base font-serif mb-6">
+                "Sejarah akan menulis apakah tanganmu membangun surga untuk
+                wargamu, atau malah membangun neraka yang indah."
+                <footer className="mt-2 text-[#8c5e35] font-bold not-italic text-xs md:text-sm center-attrib">
+                  — Mbah Darmo, Sesepuh Desa Amanah
+                </footer>
+              </blockquote>
+            </div>
+          </div>
+
+          {/* ── TOMBOL KEMBALI ── (Wood texture style with gold text) */}
+          <div className="text-center mt-6">
+            <button
+              onClick={onBackToMenu}
+              className="
+                              bg-gradient-to-b from-[#8c5e35] to-[#5a4027]
+                              hover:from-[#7a502a] hover:to-[#4a331e]
+                              text-[#d4bc96] font-black text-lg md:text-xl font-serif
+                              px-8 py-3 md:px-12 md:py-4 rounded-lg
+                              border-b-4 border-[#3b2a1a]
+                              active:border-b-0 active:translate-y-1
+                              transition-all shadow-lg tracking-wider
+                              text-shadow-md
+                            "
+            >
+              ✦ Kembali ke Menu Utama ✦
+            </button>
+            <p className="text-[#8c5e35] text-xs mt-3 font-serif">
+              Terima kasih telah bermain Suara yang Didengar
+            </p>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
