@@ -284,7 +284,7 @@ export default function EndingScreen({
             {/* ── RIGHT COLUMN: ENDING CARD & QUOTE ── */}
             <div className="flex flex-col">
               {/* Ending Card Panel (Book style) */}
-              <div className="flex-grow bg-[#fcedd9] border-2 border-[#b08d6a] rounded-lg p-5 md:p-6 shadow-md mb-6">
+              <div className="grow bg-[#fcedd9] border-2 border-[#b08d6a] rounded-lg p-5 md:p-6 shadow-md mb-6">
                 <p className="text-[#3b2a1a] leading-relaxed text-base md:text-lg font-serif font-medium mb-6">
                   {ending.description}
                 </p>
@@ -333,7 +333,7 @@ export default function EndingScreen({
             <button
               onClick={onBackToMenu}
               className="
-                              bg-gradient-to-b from-[#8c5e35] to-[#5a4027]
+                              bg-linear-to-b from-[#8c5e35] to-[#5a4027]
                               hover:from-[#7a502a] hover:to-[#4a331e]
                               text-[#d4bc96] font-black text-lg md:text-xl font-serif
                               px-8 py-3 md:px-12 md:py-4 rounded-lg

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
-import { saveGame } from "../lib/game";
+import { saveGame, markChapterPlayed } from "../lib/game";
 import EndingScreen from "./EndingScreen";
 import { GameState, ChapterData } from "@/types/chapter-data";
 import { CHAPTER_META_LIST } from "@/data";
@@ -272,7 +272,7 @@ export default function GameScreen({
       {/* Karakter akan HILANG otomatis kalau showChoices sedang true */}
       {currentScene.characterImage && !showChoices && (
         <div
-          className={`absolute bottom-[200px] ${characterPosClass} z-10 w-[350px] h-[600px] md:w-[450px] md:h-[800px] transition-all duration-500 pointer-events-none`}
+          className={`absolute bottom-50 ${characterPosClass} z-10 w-87.5 h-150 md:w-112.5 md:h-200 transition-all duration-500 pointer-events-none`}
         >
           <Image
             src={currentScene.characterImage}
@@ -289,7 +289,7 @@ export default function GameScreen({
         {/* TEXT DIALOG BOX - Hidden when choices are shown */}
         {!showChoices && (
           <div
-            className="relative w-full min-h-[220px] max-h-[50vh] cursor-pointer pointer-events-auto shrink-0 flex flex-col"
+            className="relative w-full min-h-55 max-h-[50vh] cursor-pointer pointer-events-auto shrink-0 flex flex-col"
             onClick={handleSkipTyping}
           >
             {/* ... (Isi Text Dialog Box kamu biarkan sama persis seperti sebelumnya) ... */}
@@ -321,7 +321,7 @@ export default function GameScreen({
                 </div>
               </div>
               <div className="overflow-y-auto pl-8 pr-12 md:pl-10 md:pr-14 mb-2 mt-4 shrink flex-col flex flex-1">
-                <p className="text-[#3b2a1a] text-lg md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm min-h-[80px]">
+                <p className="text-[#3b2a1a] text-lg md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm min-h-20">
                   {displayedText}
                   {isTyping && (
                     <span className="inline-block w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>
@@ -338,9 +338,9 @@ export default function GameScreen({
             {/* ── KATA-KATA DRAMATIS KADES ── */}
             <div className="mb-10 w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite]">
               {/* Background gradient hitam memanjang biar teks sangat kontras */}
-              <div className="relative px-4 py-4 md:py-6 bg-gradient-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
+              <div className="relative px-4 py-4 md:py-6 bg-linear-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
                 {/* Garis emas atas */}
-                <div className="absolute top-0 w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#d4bc96] to-transparent"></div>
+                <div className="absolute top-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
 
                 <p
                   className="text-white text-base md:text-2xl font-black font-serif tracking-[0.2em] md:tracking-[0.3em] text-center uppercase relative z-10"
@@ -353,7 +353,7 @@ export default function GameScreen({
                 </p>
 
                 {/* Garis emas bawah */}
-                <div className="absolute bottom-0 w-3/4 md:w-1/2 h-[2px] bg-gradient-to-r from-transparent via-[#d4bc96] to-transparent"></div>
+                <div className="absolute bottom-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
               </div>
             </div>
 
@@ -363,7 +363,7 @@ export default function GameScreen({
                 <button
                   key={index}
                   onClick={(e) => handleChoice(e, choice.nextId, choice.effect)}
-                  className="group relative w-full min-h-[200px] transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                  className="group relative w-full min-h-50 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                 >
                   {/* Background box */}
                   <div className="absolute inset-0 z-0 drop-shadow-2xl">
@@ -404,7 +404,7 @@ export default function GameScreen({
           (!currentScene.choices || currentScene.choices.length === 0) && (
             <button
               onClick={handleContinue}
-              className="group relative w-full min-h-[70px] pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative w-full min-h-17.5 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               {/* Background box */}
               <div className="absolute inset-0 z-0">
@@ -445,9 +445,10 @@ export default function GameScreen({
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                markChapterPlayed(startSceneId.split("_")[0], stats); // Gunakan startSceneId agar ID selalu konsisten, e.g. "ch4"
                 setShowEnding(true);
               }}
-              className="group relative w-full min-h-[70px] pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative w-full min-h-17.5 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               {/* Background box */}
               <div className="absolute inset-0 z-0">
