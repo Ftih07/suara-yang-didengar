@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { hasSavedGame, loadGame } from "../lib/game";
+import { hasSavedGame, loadGame, getPlayedChapters } from "../lib/game";
 
 type MainMenuProps = {
   onSelectChapter: (startId: string) => void;
@@ -14,9 +14,11 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
   const [showModal, setShowModal] = useState(false);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [menuView, setMenuView] = useState<'main' | 'chapterSelect'>('main');
+  const [playedChapters, setPlayedChapters] = useState<string[]>([]);
 
   useEffect(() => {
     setHasSave(hasSavedGame());
+    setPlayedChapters(getPlayedChapters());
   }, []);
 
   const handleStartFresh = () => {
@@ -39,11 +41,11 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
   };
 
   const chapters = [
-    { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: false },
-    { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: false },
-    { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: false },
-    { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: false },
-    { id: 5, title: "Chapter 5", startId: "ch5_intro", locked: false },
+    { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: true },  // belum ada data
+    { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: !playedChapters.includes("ch1") },  // belum ada data
+    { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: !playedChapters.includes("ch2") },  // belum ada data
+    { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: !playedChapters.includes("ch3") }, // selalu terbuka
+    { id: 5, title: "Chapter 5", startId: "ch5_intro", locked: !playedChapters.includes("ch4") },
     { id: 6, title: "Chapter 6", startId: "ch6_intro", locked: true },
     { id: 7, title: "Chapter 7", startId: "ch7_intro", locked: true },
     { id: 8, title: "Chapter 8", startId: "ch8_intro", locked: true },
@@ -174,8 +176,8 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
                 onClick={() => handleChapterClick(chapter)}
                 disabled={chapter.locked}
                 className={`relative flex items-center h-[76px] w-full transition-all duration-300 ${chapter.locked
-                    ? "opacity-60 cursor-not-allowed contrast-75"
-                    : "hover:scale-105 active:scale-95 cursor-pointer"
+                  ? "opacity-60 cursor-not-allowed contrast-75"
+                  : "hover:scale-105 active:scale-95 cursor-pointer"
                   }`}
               >
                 <Image src="/ui/txt box 1.png" alt="btn bg" fill className="object-fill drop-shadow-xl pointer-events-none" unoptimized />
@@ -200,6 +202,15 @@ export default function MainMenu({ onSelectChapter, onContinueGame }: MainMenuPr
                 >
                   {chapter.title}
                 </span>
+                {playedChapters.includes(chapter.startId.split("_")[0]) && (
+                  <span
+                    className="absolute right-6 z-20 text-[28px]"
+                    title="Sudah dimainkan"
+                    style={{ filter: "drop-shadow(0px 0px 6px rgba(34, 197, 94, 0.8))" }}
+                  >
+                    ✅
+                  </span>
+                )}
               </button>
             ))}
           </div>

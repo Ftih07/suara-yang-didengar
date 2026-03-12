@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
-import { saveGame } from "../lib/game";
+import { saveGame, markChapterPlayed } from "../lib/game";
 import EndingScreen from "./EndingScreen";
 import { GameState, ChapterData } from "@/types/chapter-data";
 import { CHAPTER_META_LIST } from "@/data";
@@ -373,6 +373,7 @@ export default function GameScreen({ storyData, startSceneId, onBackToMenu, save
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                markChapterPlayed(currentSceneId.split("-")[0], stats); // Tandai chapter sebagai sudah dimainkan
                 setShowEnding(true);
               }}
               className="group relative w-full min-h-[70px] pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
