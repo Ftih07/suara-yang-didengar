@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { hasSavedGame, loadGame, getPlayedChapters } from "../lib/game";
 import { GameState } from "@/types/chapter-data";
-
 type MainMenuProps = {
   onSelectChapter: (startId: string) => void;
   onContinueGame: () => void;
@@ -80,6 +79,8 @@ export default function MainMenu({
 }: MainMenuProps) {
   const [hasSave, setHasSave] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [savedStats, setSavedStats] = useState<GameState | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [menuView, setMenuView] = useState<'main' | 'chapterSelect'>('main');
   const [playedChapters, setPlayedChapters] = useState<string[]>([]);
@@ -153,7 +154,7 @@ export default function MainMenu({
   }: any) => (
     <button
       onClick={onClick}
-      className={`relative flex items-center justify-center h-[76px] ${width} group transition-all duration-300 hover:scale-105 active:scale-95 ${className}`}
+      className={`relative flex items-center justify-center h-19 ${width} group transition-all duration-300 hover:scale-105 active:scale-95 ${className}`}
     >
       <Image
         src="/ui/txt box 1.png"
@@ -232,8 +233,8 @@ export default function MainMenu({
             {/* Tombol Status Desa sekarang punya fungsi */}
             <WoodButton onClick={handleShowStatus}>STATUS DESA</WoodButton>
 
-            <WoodButton onClick={() => {}}>PENGATURAN</WoodButton>
-            <WoodButton onClick={() => {}}>KREDIT</WoodButton>
+            <WoodButton onClick={() => { }}>PENGATURAN</WoodButton>
+            <WoodButton onClick={() => { }}>KREDIT</WoodButton>
           </div>
         </div>
       )}
@@ -263,13 +264,13 @@ export default function MainMenu({
           </h2>
 
           {/* Chapters Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 w-full max-w-[800px] px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 w-full max-w-200 px-6">
             {chapters.map((chapter) => (
               <button
                 key={chapter.id}
                 onClick={() => handleChapterClick(chapter)}
                 disabled={chapter.locked}
-                className={`relative flex items-center h-[76px] w-full transition-all duration-300 ${chapter.locked
+                className={`relative flex items-center h-19 w-full transition-all duration-300 ${chapter.locked
                   ? "opacity-60 cursor-not-allowed contrast-75"
                   : "hover:scale-105 active:scale-95 cursor-pointer"
                   }`}
@@ -333,7 +334,7 @@ export default function MainMenu({
       {/* ── MODAL KONFIRMASI (NEW GAME) ── */}
       {showModal && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="relative w-[400px] bg-[#3a2517] rounded-xl border-4 border-[#8B4513] shadow-2xl p-6 flex flex-col items-center">
+          <div className="relative w-100 bg-[#3a2517] rounded-xl border-4 border-[#8B4513] shadow-2xl p-6 flex flex-col items-center">
             <div className="absolute inset-0 bg-[url('/backgrounds/kantor-desa.png')] bg-cover opacity-10 rounded-lg pointer-events-none" />
             <h2 className="relative z-10 text-2xl font-bold text-[#ebcca5] mb-4 text-center">
               Perhatian!
@@ -420,7 +421,7 @@ export default function MainMenu({
               <button
                 onClick={() => setShowStatusModal(false)}
                 className="
-                  bg-gradient-to-b from-[#8c5e35] to-[#5a4027]
+                  bg-linear-to-b from-[#8c5e35] to-[#5a4027]
                   hover:from-[#7a502a] hover:to-[#4a331e]
                   text-[#fcedd9] font-black text-lg font-serif
                   px-10 py-2 md:py-3 rounded-lg
