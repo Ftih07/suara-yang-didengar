@@ -76,6 +76,42 @@ export default function GameScreen({
     currentScene.characterName.includes("Pak Kades");
   const characterPosClass = "right-5 md:right-[15%]";
 
+  // --- TAMBAHAN BARU: STATE FULLSCREEN & DETEKSI MOBILE ---
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+  useEffect(() => {
+    // Deteksi apakah perangkat adalah mobile (bukan Desktop Site)
+    const checkMobile = () => {
+      const userAgent =
+        typeof window !== "undefined" ? navigator.userAgent : "";
+      setIsMobileDevice(/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent));
+    };
+    checkMobile();
+
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
+
+  // Fungsi Toggle Fullscreen (Landscape Lock dihilangkan)
+  const toggleFullscreen = async () => {
+    if (!document.fullscreenElement) {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.error("Gagal masuk fullscreen:", err);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen().catch(console.error);
+      }
+    }
+  };
+
   // Immediate autosave saat pindah chapter/scene
   useEffect(() => {
     // Skip save pada mount pertama kali
@@ -200,7 +236,7 @@ export default function GameScreen({
 
   return (
     <div
-      className="relative w-full h-screen overflow-hidden bg-black text-white font-sans"
+      className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-black text-white font-sans"
       onClick={handleSkipTyping}
     >
       {/* Ending Screen Overlay */}
@@ -212,13 +248,66 @@ export default function GameScreen({
         />
       )}
 
-      {/* Tombol Back ke Menu (Pojok Kanan Atas) */}
-      <button
-        onClick={onBackToMenu}
-        className="absolute top-5 right-5 z-50 bg-red-600/80 hover:bg-red-700 text-white px-3 py-1 rounded border border-white/20 text-sm"
-      >
-        Keluar ke Menu
-      </button>
+      {/* Tombol Aksi (Pojok Kanan Atas) - Sesuai Tema */}
+      <div className="absolute top-4 right-4 md:top-5 md:right-5 z-50 flex gap-3 pointer-events-auto">
+        {/* Tombol Fullscreen */}
+        {!isMobileDevice && (
+          <button
+            onClick={toggleFullscreen}
+            className="group relative h-[35px] md:h-[45px] px-4 md:px-6 flex items-center justify-center shrink-0 transition-all duration-300 hover:scale-[1.05] active:scale-[0.95]"
+          >
+            <div className="absolute inset-0 z-0 drop-shadow-lg">
+              <Image
+                src={"/ui/txt box 1.png"}
+                alt="bg btn"
+                fill
+                className="object-fill rounded opacity-90 group-hover:opacity-100"
+                unoptimized
+              />
+            </div>
+            <div className="absolute inset-0 z-10 pointer-events-none">
+              <Image
+                src={"/ui/dialog border.png"}
+                alt="border btn"
+                fill
+                className="object-fill"
+                unoptimized
+              />
+            </div>
+            <span className="relative z-20 text-[#3b2a1a] font-serif font-bold text-xs md:text-sm drop-shadow-sm tracking-wider uppercase">
+              {isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+            </span>
+          </button>
+        )}
+
+        {/* Tombol Keluar ke Menu */}
+        <button
+          onClick={onBackToMenu}
+          className="group relative h-[35px] md:h-[45px] px-4 md:px-6 flex items-center justify-center shrink-0 transition-all duration-300 hover:scale-[1.05] active:scale-[0.95]"
+        >
+          <div className="absolute inset-0 z-0 drop-shadow-lg">
+            <Image
+              src={"/ui/txt box 1.png"}
+              alt="bg btn"
+              fill
+              className="object-fill rounded opacity-90 group-hover:opacity-100"
+              unoptimized
+            />
+          </div>
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <Image
+              src={"/ui/dialog border.png"}
+              alt="border btn"
+              fill
+              className="object-fill"
+              unoptimized
+            />
+          </div>
+          <span className="relative z-20 text-[#3b2a1a] font-serif font-bold text-xs md:text-sm drop-shadow-sm tracking-wider uppercase">
+            Menu Utama
+          </span>
+        </button>
+      </div>
 
       {/* --- LAYER 1: BACKGROUND --- */}
       {currentScene.backgroundImage && (
@@ -235,37 +324,40 @@ export default function GameScreen({
       )}
 
       {/* --- LAYER 2: STATS HUD --- */}
-      <div className="absolute top-5 left-5 z-20 bg-slate-800/90 backdrop-blur-sm border-2 border-yellow-600 p-4 rounded-lg shadow-lg w-64">
+      {/* Di HP: jarak top/left 4, width 48 (192px), padding 3. Di Desktop balik normal */}
+      <div className="absolute top-4 left-4 md:top-5 md:left-5 z-20 bg-slate-800/90 backdrop-blur-sm border-2 border-yellow-600 p-3 md:p-4 rounded-lg shadow-lg w-48 md:w-64">
         {activeChapterTitle && (
-          <p className="text-yellow-400 text-[10px] uppercase tracking-widest mb-2 truncate font-semibold">
+          <p className="text-yellow-400 text-[8px] md:text-[10px] uppercase tracking-widest mb-1 md:mb-2 truncate font-semibold">
             {activeChapterTitle}
           </p>
         )}
 
-        <h3 className="text-yellow-500 font-bold mb-2 uppercase tracking-wider text-sm">
+        <h3 className="text-yellow-500 font-bold mb-1 md:mb-2 uppercase tracking-wider text-xs md:text-sm">
           Status Desa
         </h3>
 
-        <StatBar
-          label="Kepercayaan"
-          value={displayStats.trust}
-          color="bg-blue-500"
-        />
-        <StatBar
-          label="Kas Desa"
-          value={displayStats.treasury}
-          color="bg-yellow-500"
-        />
-        <StatBar
-          label="Stabilitas"
-          value={displayStats.stability}
-          color="bg-green-500"
-        />
-        <StatBar
-          label="Warisan"
-          value={displayStats.legacy}
-          color="bg-purple-400"
-        />
+        <div className="flex flex-col gap-1 md:gap-0">
+          <StatBar
+            label="Kepercayaan"
+            value={displayStats.trust}
+            color="bg-blue-500"
+          />
+          <StatBar
+            label="Kas Desa"
+            value={displayStats.treasury}
+            color="bg-yellow-500"
+          />
+          <StatBar
+            label="Stabilitas"
+            value={displayStats.stability}
+            color="bg-green-500"
+          />
+          <StatBar
+            label="Warisan"
+            value={displayStats.legacy}
+            color="bg-purple-400"
+          />
+        </div>
       </div>
 
       {/* --- LAYER 3: CHARACTER --- */}
@@ -285,14 +377,15 @@ export default function GameScreen({
       )}
 
       {/* --- LAYER 4: DIALOGUE & CHOICES CONTAINER --- */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl flex flex-col gap-2 pointer-events-none">
-        {/* TEXT DIALOG BOX - Hidden when choices are shown */}
+      {/* max-h-[65vh] di mobile biar gak nabrak status desa, flex-col justify-end biar nekan ke bawah */}
+      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl flex flex-col justify-end gap-2 md:gap-4 pointer-events-none max-h-[65vh] md:max-h-[95vh]">
+        {/* TEXT DIALOG BOX */}
         {!showChoices && (
           <div
-            className="relative w-full min-h-55 max-h-[50vh] cursor-pointer pointer-events-auto shrink-0 flex flex-col"
+            // Pakai flex-1 dan min-h-[200px] biar dia fleksibel ngisi ruang, tapi gak akan nggencet tombol
+            className="relative w-full flex-1 min-h-[200px] md:min-h-[250px] cursor-pointer pointer-events-auto flex flex-col shrink"
             onClick={handleSkipTyping}
           >
-            {/* ... (Isi Text Dialog Box kamu biarkan sama persis seperti sebelumnya) ... */}
             <div className="absolute inset-0 z-0 drop-shadow-2xl">
               <Image
                 src={"/ui/txt box 1.png"}
@@ -311,20 +404,23 @@ export default function GameScreen({
                 unoptimized
               />
             </div>
-            <div className="relative z-20 h-full p-8 flex flex-col pt-12 flex-1">
-              <div className="absolute -top-3 left-8 z-30 drop-shadow-xl">
-                <div className="relative inline-block px-10 py-3">
+
+            <div className="relative z-20 h-full p-4 md:p-8 flex flex-col pt-10 md:pt-12">
+              <div className="absolute -top-3 left-4 md:left-8 z-30 drop-shadow-xl scale-[0.85] md:scale-100 origin-left">
+                <div className="relative inline-block px-8 py-2 md:py-3">
                   <div className="absolute inset-0 bg-[#3b2a1a] border-2 border-[#b08d6a] rounded-t-xl rounded-br-xl opacity-90 skew-x-[-10deg]"></div>
-                  <span className="relative z-10 text-[#fcedd9] font-bold text-lg md:text-xl font-serif drop-shadow-md tracking-wider">
+                  <span className="relative z-10 text-[#fcedd9] font-bold text-sm md:text-xl font-serif drop-shadow-md tracking-wider">
                     {currentScene.characterName}
                   </span>
                 </div>
               </div>
-              <div className="overflow-y-auto pl-8 pr-12 md:pl-10 md:pr-14 mb-2 mt-4 shrink flex-col flex flex-1">
-                <p className="text-[#3b2a1a] text-lg md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm min-h-20">
+
+              {/* min-h-0 ini KUNCI biar overflow-y-auto jalan sempurna di flexbox */}
+              <div className="overflow-y-auto pl-4 pr-8 md:pl-10 md:pr-14 py-2 flex-1 min-h-0 pointer-events-auto">
+                <p className="text-[#3b2a1a] text-base md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm pb-6">
                   {displayedText}
                   {isTyping && (
-                    <span className="inline-block w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>
+                    <span className="inline-block w-[6px] md:w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>
                   )}
                 </p>
               </div>
@@ -332,18 +428,14 @@ export default function GameScreen({
           </div>
         )}
 
-        {/* CHOICES CONTAINER - Tampil setelah dialog selesai */}
+        {/* CHOICES CONTAINER */}
         {showChoices && (
-          <div className="flex flex-col items-center w-full pointer-events-auto">
-            {/* ── KATA-KATA DRAMATIS KADES ── */}
-            <div className="mb-10 w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite]">
-              {/* Background gradient hitam memanjang biar teks sangat kontras */}
-              <div className="relative px-4 py-4 md:py-6 bg-linear-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
-                {/* Garis emas atas */}
+          <div className="flex flex-col items-center w-full pointer-events-auto overflow-y-auto max-h-full pb-2">
+            <div className="mb-6 md:mb-10 w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite] shrink-0">
+              <div className="relative px-4 py-3 md:py-6 bg-linear-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
                 <div className="absolute top-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
-
                 <p
-                  className="text-white text-base md:text-2xl font-black font-serif tracking-[0.2em] md:tracking-[0.3em] text-center uppercase relative z-10"
+                  className="text-white text-sm md:text-2xl font-black font-serif tracking-[0.2em] md:tracking-[0.3em] text-center uppercase relative z-10"
                   style={{
                     textShadow:
                       "0px 4px 15px rgba(0,0,0,1), 2px 2px 0px rgba(140, 94, 53, 0.8), -1px -1px 0px rgba(0,0,0,0.8)",
@@ -351,21 +443,17 @@ export default function GameScreen({
                 >
                   ✧ Keputusan Ada Di Tanganmu ✧
                 </p>
-
-                {/* Garis emas bawah */}
                 <div className="absolute bottom-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
               </div>
             </div>
 
-            {/* Grid Tombol Pilihan */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
               {currentScene.choices!.map((choice, index) => (
                 <button
                   key={index}
                   onClick={(e) => handleChoice(e, choice.nextId, choice.effect)}
-                  className="group relative w-full min-h-50 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                  className="group relative w-full min-h-[60px] md:min-h-[80px] shrink-0 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                 >
-                  {/* Background box */}
                   <div className="absolute inset-0 z-0 drop-shadow-2xl">
                     <Image
                       src={"/ui/txt box 1.png"}
@@ -375,7 +463,6 @@ export default function GameScreen({
                       unoptimized
                     />
                   </div>
-                  {/* Border frame */}
                   <div className="absolute inset-0 z-10 pointer-events-none">
                     <Image
                       src={"/ui/dialog border.png"}
@@ -385,9 +472,8 @@ export default function GameScreen({
                       unoptimized
                     />
                   </div>
-                  {/* Text content */}
-                  <div className="relative z-20 px-8 py-8 flex items-center justify-center h-full">
-                    <p className="text-[#3b2a1a] text-base md:text-lg font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
+                  <div className="relative z-20 px-6 py-4 flex items-center justify-center h-full">
+                    <p className="text-[#3b2a1a] text-sm md:text-lg font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
                       {choice.text}
                     </p>
                   </div>
@@ -397,16 +483,16 @@ export default function GameScreen({
           </div>
         )}
 
-        {/* CONTINUE BUTTON - Untuk scene dengan nextSceneId tanpa choices */}
+        {/* CONTINUE BUTTON */}
         {!isTyping &&
           currentScene.nextSceneId &&
           currentScene.nextSceneId !== "" &&
           (!currentScene.choices || currentScene.choices.length === 0) && (
             <button
               onClick={handleContinue}
-              className="group relative w-full min-h-17.5 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              // Ganti min-h-17.5 jadi h-[55px] dan pastikan ada shrink-0
+              className="group relative w-full h-[55px] md:h-[70px] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {/* Background box */}
               <div className="absolute inset-0 z-0">
                 <Image
                   src={"/ui/txt box 1.png"}
@@ -416,8 +502,6 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-
-              {/* Border frame */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <Image
                   src={"/ui/dialog border.png"}
@@ -427,30 +511,30 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-
-              {/* Text content */}
-              <div className="relative z-20 px-6 py-4 flex items-center justify-center gap-2">
+              <div className="relative z-20 px-6 py-2 flex items-center justify-center gap-2 h-full">
                 <p className="text-[#3b2a1a] text-lg md:text-2xl font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
                   Lanjutkan
                 </p>
-                <span className="text-[#3b2a1a] text-2xl animate-pulse">▶</span>
+                <span className="text-[#3b2a1a] text-xl md:text-2xl animate-pulse">
+                  ▶
+                </span>
               </div>
             </button>
           )}
 
-        {/* BACK TO MENU - Untuk scene ending (no nextSceneId, no choices) */}
+        {/* BACK TO MENU (ENDING) BUTTON */}
         {!isTyping &&
           (!currentScene.nextSceneId || currentScene.nextSceneId === "") &&
           (!currentScene.choices || currentScene.choices.length === 0) && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                markChapterPlayed(startSceneId.split("_")[0], stats); // Gunakan startSceneId agar ID selalu konsisten, e.g. "ch4"
+                markChapterPlayed(startSceneId.split("_")[0], stats);
                 setShowEnding(true);
               }}
-              className="group relative w-full min-h-17.5 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              // Ganti min-h-17.5 jadi h-[55px] dan pastikan ada shrink-0
+              className="group relative w-full h-[55px] md:h-[70px] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
-              {/* Background box */}
               <div className="absolute inset-0 z-0">
                 <Image
                   src={"/ui/txt box 1.png"}
@@ -460,8 +544,6 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-
-              {/* Border frame */}
               <div className="absolute inset-0 z-10 pointer-events-none">
                 <Image
                   src={"/ui/dialog border.png"}
@@ -471,9 +553,7 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-
-              {/* Text content */}
-              <div className="relative z-20 px-6 py-4 flex items-center justify-center">
+              <div className="relative z-20 px-6 py-2 flex items-center justify-center h-full">
                 <p className="text-[#3b2a1a] text-lg md:text-2xl font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
                   Lihat Hasil Akhir
                 </p>
