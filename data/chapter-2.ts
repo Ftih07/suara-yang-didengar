@@ -43,6 +43,8 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Narasi",
     text: "Siang hari yang terik menyengat di Pintu Air Utama Desa Amanah. Suara bising air yang mengalir kecil tertutup oleh teriakan dua kubu warga yang saling berhadapan. Di satu sisi, belasan petani membawa cangkul dengan wajah merah padam. Di sisi lain, rombongan ibu-ibu membawa ember dan jerigen kosong. Briptu Aris berdiri di tengah, merentangkan tangan untuk mencegah bentrok fisik.",
     nextSceneId: "ch2_aris_1",
+    backgroundMusic: "calm",
+    narratorAudio: "narrator-ch2-intro.mp3",
   },
 
   ch2_aris_1: {
@@ -52,6 +54,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Briptu Aris",
     text: "(Berteriak menembus kebisingan) Mundur! Semua mundur dari tuas pintu air! Siapapun yang memutar tuas ini tanpa perintah Pak Kades, saya angkat ke polsek sekarang juga!",
     nextSceneId: "ch2_darma_1",
+    backgroundMusic: "tense",
   },
 
   ch2_darma_1: {
@@ -61,6 +64,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Pak Darma",
     text: "(Menancapkan cangkulnya ke tanah) Pak Kades! 40 hektar sawah kami di blok selatan sudah retak rambut! Kalau hari ini air nggak dialirkan penuh ke saluran irigasi, besok pagi padinya mati. Hitungan ruginya miliaran, Pak! Desa kita bisa bangkrut!",
     nextSceneId: "ch2_siti_1",
+    backgroundMusic: "tense",
   },
 
   ch2_siti_1: {
@@ -70,6 +74,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Siti",
     text: "(Maju sambil memukul pantat jerigen kosongnya) Bangkrut apanya?! Bapak mikir padi mati, tapi mikir nggak anak-anak kami mau minum apa? Sumur di Dusun Atas sudah kering kerontang. Kalau mau mandi, kami harus beli air tangki yang harganya ugal-ugalan!",
     nextSceneId: "ch2_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch2_laras_1: {
@@ -79,6 +84,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "(Membuka buku catatannya) Pak, situasinya memang krisis. Debit air dari mata air hulu menyusut drastis. Saat ini, aliran air konstan kita tinggal 200 liter per detik. Masalahnya, untuk menyelamatkan 40 hektar sawah Pak Darma, irigasi butuh asupan 150 liter per detik.",
     nextSceneId: "ch2_laras_2",
+    backgroundMusic: "tense",
   },
 
   ch2_laras_2: {
@@ -88,6 +94,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "Sedangkan batas minimal agar air bersih bisa mengalir ke seluruh pipa pemukiman warga adalah 100 liter per detik. Kita defisit 50 liter per detik.",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Kita pakai sistem giliran waktu, tidak ada yang dapat aliran bersamaan. Pak Darma, sawah dapat aliran 12 jam penuh. Siti, pemukiman dapat sisa 12 jamnya. Adil kan? Volume airnya terbagi seimbang: V = Q x t.",
@@ -110,6 +117,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Siti",
     text: "Tunggu dulu, Pak Kades! Kalau digilir 12 jam, berarti pipa ke arah kampung akan kosong selama sawah diairi, kan? Begitu giliran kami tiba, air yang mengalir itu butuh waktu 2 jam cuma buat ngisi ruang kosong di sepanjang pipa bocor desa kita sampai ke rumah warga ujung!",
     nextSceneId: "ch2_a_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch2_a_laras_1: {
@@ -119,6 +127,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "Mbak Siti benar, Pak. Ada delay system di sini. Kalau kita patok 12 jam di pintu air, warga secara efektif cuma menikmati air selama 10 jam. Volume total yang mereka terima lebih sedikit dari petani.",
     nextSceneId: "ch2_a_darma_1",
+    backgroundMusic: "tense",
   },
 
   ch2_a_darma_1: {
@@ -128,6 +137,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Pak Darma",
     text: "Ya itu derita kalian yang tinggal di atas bukit! Pokoknya saya nggak mau tahu, 12 jam irigasi itu sudah batas minimal agar air bisa sampai ke petak sawah paling ujung. Kalau dipotong lagi, laju peresapan tanah lebih cepat dari laju airnya. Padi ujung pasti mati!",
     nextSceneId: "ch2_a_aris_1",
+    backgroundMusic: "tense",
   },
 
   ch2_a_aris_1: {
@@ -137,6 +147,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Briptu Aris",
     text: "Keputusan di tangan Bapak. Kalau dibiarkan berdebat begini, sore nanti mereka sudah baku hantam.",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Pak Darma, secara matematika sawah tidak dirugikan oleh pipa kosong. Sawah harus mengalah. Irigasi saya buka 10 jam saja, dan 14 jam untuk pemukiman agar kompensasi pipa kosongnya terbayar. Warga butuh minum!",
@@ -161,6 +172,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Pak Darma",
     text: "120 liter per detik?! Pak Kades, kalau debit dikurangi jadi segitu, daya dorong air di parit irigasi nggak akan kuat melawan gravitasi! Airnya cuma bakal terserap di sawah blok depan, yang blok belakang nggak kebagian setetes pun!",
     nextSceneId: "ch2_b_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch2_b_laras_1: {
@@ -170,6 +182,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "Secara teori hidrodinamika, Pak Darma benar. Begitu juga dengan pipa pemukiman. Kalau cuma dikasih 80 liter per detik, tekanannya tidak akan memecahkan batas limit untuk mendaki ke elevasi Dusun Atas. Warga di Dusun Bawah dapat air mengalir, tapi Dusun Atas pipanya cuma keluar angin.",
     nextSceneId: "ch2_b_siti_1",
+    backgroundMusic: "tense",
   },
 
   ch2_b_siti_1: {
@@ -179,6 +192,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Siti",
     text: "Berarti sama aja bohong! Buat apa warga Dusun Atas iuran bulanan kalau yang mandi cuma orang Dusun Bawah?!",
     nextSceneId: "ch2_b_darma_2",
+    backgroundMusic: "tense",
   },
 
   ch2_b_darma_2: {
@@ -188,6 +202,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Pak Darma",
     text: "Itulah kenapa saya bilang matikan saja pipa warga! Warga bisa beli air galon darurat pakai uang kas desa, tapi padi nggak bisa disiram pakai galon!",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Kas desa kita cairkan sekarang! Laras, sewa mesin pompa diesel besar untuk mendorong tekanan pipa ke Dusun Atas meskipun debitnya cuma 80 liter per detik. Sawah tetap dapat 120 liter per detik. Semua terlayani hari ini!",
@@ -212,6 +227,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Narasi",
     text: "Tuas pintu air akhirnya diputar dengan suara besi berderit yang keras. Air yang awalnya tertahan kini terbagi sesuai dengan keputusan Kepala Desa. Sebagian mengalir membasahi parit kering menuju sawah, sebagian lagi bergemuruh masuk ke dalam pipa besar milik desa.",
     nextSceneId: "ch2_c_siti_1",
+    backgroundMusic: "calm",
   },
 
   ch2_c_siti_1: {
@@ -221,6 +237,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Siti",
     text: "(Menarik napas panjang, menatap jerigennya lalu menatap pemain) Semoga keputusan Bapak kali ini nggak bikin anak-anak kami antre di puskesmas besok pagi karena kurang air bersih.",
     nextSceneId: "ch2_c_darma_1",
+    backgroundMusic: "calm",
   },
 
   ch2_c_darma_1: {
@@ -230,6 +247,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Pak Darma",
     text: "(Mengusap keringat di dahi, nada suaranya berat) Alam memang sedang tidak bersahabat, Pak Kades. Tapi ingat, kalau sampai bulan depan lumbung padi desa kosong, bapak yang harus maju berhadapan dengan tengkulak.",
     nextSceneId: "ch2_c_aris_1",
+    backgroundMusic: "calm",
   },
 
   ch2_c_aris_1: {
@@ -239,6 +257,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Briptu Aris",
     text: "Ibu-ibu, Bapak-bapak, sudah dengar sendiri putusannya! Ayo bubar, kembali ke tempat masing-masing! (Menoleh ke pemain) Keputusan yang berisiko, Pak. Tapi setidaknya hari ini tidak ada darah yang tumpah di pintu air.",
     nextSceneId: "ch2_c_laras_1",
+    backgroundMusic: "calm",
   },
 
   ch2_c_laras_1: {
@@ -247,6 +266,8 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterImage: CHAR_LARAS,
     characterName: "Laras",
     text: "(Mengunci buku catatannya) Saya akan panggil petugas teknis untuk memantau fluktuasi debit airnya malam ini. Tapi Pak... gara-gara krisis ini, beberapa pengusaha dari luar desa sudah mulai menawar tanah kering milik warga dengan harga murah. Kita punya masalah baru yang menunggu di meja Bapak besok pagi.",
+    backgroundMusic: "calm",
+    narratorAudio: "narrator-ch2-conclusion.mp3",
     choices: [], // Kosong untuk men-trigger EndingScreen
   },
 };

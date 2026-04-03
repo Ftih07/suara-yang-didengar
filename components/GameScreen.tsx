@@ -4,8 +4,10 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import { saveGame, markChapterPlayed } from "../lib/game";
 import EndingScreen from "./EndingScreen";
+import AudioControls from "./AudioControls";
 import { GameState, ChapterData } from "@/types/chapter-data";
 import { CHAPTER_META_LIST } from "@/data";
+import AudioManager from "@/lib/audioManager";
 
 type GameScreenProps = {
   storyData: ChapterData[]; // Semua scene dari chapter manapun
@@ -62,6 +64,7 @@ export default function GameScreen({
   // States for Typing Animation
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showSkipButton, setShowSkipButton] = useState(false);
   const typingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isTypingRef = useRef(false);
 
@@ -149,10 +152,18 @@ export default function GameScreen({
     setDisplayedText("");
     setIsTyping(true);
     isTypingRef.current = true;
+    setShowSkipButton(false); // Reset skip button saat mulai typing
     let i = 0;
     const textToType = currentScene.text;
 
     if (typingTimerRef.current) clearInterval(typingTimerRef.current);
+
+    // Timer untuk menampilkan skip button setelah 3 detik
+    const skipButtonTimer = setTimeout(() => {
+      if (isTypingRef.current) {
+        setShowSkipButton(true);
+      }
+    }, 3000); // 3 detik
 
     typingTimerRef.current = setInterval(() => {
       // Saat skip, isTypingRef.current akan bernilai false
@@ -167,22 +178,49 @@ export default function GameScreen({
       } else {
         setIsTyping(false);
         isTypingRef.current = false;
+        setShowSkipButton(false); // Sembunyikan skip button saat typing selesai
         if (typingTimerRef.current) clearInterval(typingTimerRef.current);
       }
-    }, 30); // Kecepatan ketikan dalam milidetik
+    }, 32 ); // Kecepatan ketikan dalam milidetik
 
     return () => {
+      clearTimeout(skipButtonTimer);
       if (typingTimerRef.current) clearInterval(typingTimerRef.current);
     };
   }, [currentSceneId, currentScene.text]);
 
-  const handleSkipTyping = (e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  // Audio Playback Logic
+  useEffect(() => {
+    const audioManager = AudioManager.getInstance();
+    
+    // Play background music jika scene punya field backgroundMusic
+    if (currentScene.backgroundMusic) {
+      audioManager.playBackgroundMusic(currentScene.backgroundMusic);
+    }
+    
+    // Play narrator jika scene punya field narratorAudio
+    if (currentScene.narratorAudio) {
+      audioManager.playNarrator(currentScene.narratorAudio);
+    } else {
+      // Stop narrator jika scene tidak punya narrator
+      audioManager.stopNarrator();
+    }
+    
+    // Cleanup saat unmount (balik ke menu)
+    return () => {
+      if (showEnding) {
+        // Jika sudah ending, cleanup semua audio
+        audioManager.cleanup();
+      }
+    };
+  }, [currentSceneId, currentScene, showEnding]);
 
+  const handleSkipTyping = () => {
     if (isTypingRef.current) {
       if (typingTimerRef.current) clearInterval(typingTimerRef.current);
       isTypingRef.current = false;
       setIsTyping(false);
+      setShowSkipButton(false); // Sembunyikan skip button saat di-skip
       setDisplayedText(currentScene.text);
     }
   };
@@ -193,9 +231,8 @@ export default function GameScreen({
     effect?: Partial<GameState>,
   ) => {
     e.stopPropagation();
-    // Abaikan klik pilihan jika sedang ngetik (atau bisa auto-skip dulu)
+    // User harus tunggu typing selesai sebelum bisa klik choice
     if (isTypingRef.current) {
-      handleSkipTyping();
       return;
     }
 
@@ -219,8 +256,8 @@ export default function GameScreen({
 
   const handleContinue = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // User harus tunggu typing selesai sebelum bisa klik continue
     if (isTypingRef.current) {
-      handleSkipTyping();
       return;
     }
 
@@ -236,8 +273,7 @@ export default function GameScreen({
 
   return (
     <div
-      className="fixed inset-0 w-full h-[100dvh] overflow-hidden bg-black text-white font-sans"
-      onClick={handleSkipTyping}
+      className="relative w-full h-screen overflow-hidden bg-black text-white font-sans"
     >
       {/* Ending Screen Overlay */}
       {showEnding && (
@@ -382,9 +418,7 @@ export default function GameScreen({
         {/* TEXT DIALOG BOX */}
         {!showChoices && (
           <div
-            // Pakai flex-1 dan min-h-[200px] biar dia fleksibel ngisi ruang, tapi gak akan nggencet tombol
-            className="relative w-full flex-1 min-h-[200px] md:min-h-[250px] cursor-pointer pointer-events-auto flex flex-col shrink"
-            onClick={handleSkipTyping}
+            className="relative w-full min-h-55 max-h-[50vh] pointer-events-auto shrink-0 flex flex-col"
           >
             <div className="absolute inset-0 z-0 drop-shadow-2xl">
               <Image
@@ -424,6 +458,19 @@ export default function GameScreen({
                   )}
                 </p>
               </div>
+
+              {/* Skip Button - muncul setelah 3 detik */}
+              {showSkipButton && isTyping && (
+                <button
+                  onClick={handleSkipTyping}
+                  className="absolute bottom-4 right-6 bg-amber-600/90 hover:bg-amber-700 text-white px-5 py-2.5 rounded-lg border-2 border-amber-800/50 text-sm font-bold transition-all duration-200 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 z-40 animate-fade-in backdrop-blur-sm"
+                  style={{
+                    animation: 'fadeIn 0.3s ease-in-out',
+                  }}
+                >
+                  Skip ⏭
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -561,6 +608,9 @@ export default function GameScreen({
             </button>
           )}
       </div>
+
+      {/* Audio Controls */}
+      <AudioControls visible={true} />
     </div>
   );
 }

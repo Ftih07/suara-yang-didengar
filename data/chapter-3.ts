@@ -47,6 +47,8 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Narasi",
     text: "Pagi yang tegang di Balai Desa Amanah. Di atas meja kayu besar, terhampar sebuah peta desa versi lama yang sudah menguning, bersanding dengan cetakan blueprint pabrik modern yang mengkilap. Pak Heru, seorang investor berjas rapi, tersenyum percaya diri. Di seberangnya, Mbah Darmo duduk bersila sambil mengetukkan tongkat kayunya dengan wajah tidak senang. Pak Bakri berdiri di pojok ruangan dengan wajah cemas.",
     nextSceneId: "ch3_heru_1",
+    backgroundMusic: "calm",
+    narratorAudio: "narrator-ch3-intro.mp3",
   },
 
   ch3_heru_1: {
@@ -56,6 +58,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Heru (Investor)",
     text: "Pak Kades, tawaran saya ini solusi instan untuk desa yang kas-nya sedang seret. Saya butuh lahan persis 20.000 meter persegi, alias 2 Hektar, berbentuk persegi panjang di batas timur desa. Uang tunai 2 Miliar Rupiah saya transfer hari ini juga ke kas desa. Beres, kan?",
     nextSceneId: "ch3_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch3_laras_1: {
@@ -65,6 +68,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "(Menunjuk peta lama dengan penggaris) Tunggu dulu, Pak Heru. Lahan timur yang Bapak maksud itu di sertifikat desa tahun 1980 bentuknya trapesium, bukan persegi panjang. Sisi sejajarnya hanya 120 meter dan 180 meter, dengan tinggi 120 meter. Kalau dihitung luasnya: L = 1/2 × (120 + 180) × 120. Itu cuma 18.000 meter persegi atau 1,8 Hektar!",
     nextSceneId: "ch3_bayu_1",
+    backgroundMusic: "tense",
   },
 
   ch3_bayu_1: {
@@ -74,6 +78,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Bayu",
     text: "Betul! Kalau Pak Heru memaksa menggambar bujur sangkar atau persegi panjang 2 Hektar di atas tanah trapesium itu, berarti Bapak akan mencaplok selisih 2.000 meter persegi! Dan tebak itu tanah siapa? Itu menabrak area resapan air sungai dan memotong separuh ladang singkong Pak Bakri!",
     nextSceneId: "ch3_mbah_darmo_1",
+    backgroundMusic: "tense",
   },
 
   // ------------------------------------------------------------------
@@ -86,6 +91,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Mbah Darmo",
     text: "(Mengetukkan tongkatnya keras-keras) Tanah pesisir timur itu wates leluhur! Di situ ada pohon beringin kembar yang mengikat air tanah. Kalau kalian hitung-hitungan pakai kertas kota lalu menebang beringin itu, kualat satu desa!",
     nextSceneId: "ch3_pak_bakri_1",
+    backgroundMusic: "tense",
   },
 
   ch3_pak_bakri_1: {
@@ -95,6 +101,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Bakri",
     text: "(Suaranya bergetar) Pak Kades... ladang singkong itu satu-satunya sisa warisan bapak saya. Kalau dipotong 2.000 meter buat pabrik, saya mau makan apa, Pak?",
     nextSceneId: "ch3_heru_2",
+    backgroundMusic: "tense",
   },
 
   ch3_heru_2: {
@@ -104,6 +111,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Heru",
     text: "Saya ini pebisnis, Pak Kades. Mesin pabrik saya tidak bisa ditekuk mengikuti bentuk trapesium. Saya butuh presisi. Kas desa butuh suntikan dana, kan?",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Pak Heru, secara geometri lahan kami tidak bisa dipaksa menjadi persegi panjang tanpa merugikan warga. Kalau Bapak mau berinvestasi, desain pabrik Bapak yang harus menyesuaikan luas trapesium 1,8 Hektar ini. Titik.",
@@ -124,6 +132,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Heru",
     text: "(Mendengus pelan) Baik. Kalau saya harus merevisi blueprint menjadi 1,8 Hektar, biayanya membengkak. Saya hanya bersedia membayar kompensasi 1,2 Miliar. Tapi syaratnya, pohon beringin di tengah trapesium itu harus ditebang karena letaknya persis di titik pusat koordinat pabrik saya.",
     nextSceneId: "ch3_a_mbah_darmo_1",
+    backgroundMusic: "tense",
   },
 
   ch3_a_mbah_darmo_1: {
@@ -133,6 +142,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Mbah Darmo",
     text: "Lancang! Beringin itu sudah di sana sebelum mbah buyutmu lahir! Kalau beringin itu tumbang, sumber air untuk sawah Dusun Timur akan mati perlahan!",
     nextSceneId: "ch3_a_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch3_a_laras_1: {
@@ -142,6 +152,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "Mbah Darmo benar, Pak Kades. Pohon itu adalah titik nol resapan kita. Tapi di sisi lain, kalau pabrik ini batal murni karena sebatang pohon, kas desa kita bulan depan tidak akan cukup untuk membiayai perbaikan puskesmas.",
     nextSceneId: "ch3_a_pak_bakri_1",
+    backgroundMusic: "tense",
   },
 
   ch3_a_pak_bakri_1: {
@@ -151,6 +162,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Bakri",
     text: "Tapi setidaknya... ladang saya aman kan, Pak Kades?",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Mbah Darmo, mohon maaf. Matematika kas desa kita sedang kritis. Kita selamatkan ladang Pak Bakri dan ambil 1,2 Miliar itu. Pohon beringin kita tebang, tapi saya janjikan reboisasi di lokasi lain.",
@@ -173,6 +185,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Bayu",
     text: "Nah, ini baru masuk akal! Kalau kita jual putus 2 Miliar, kelihatannya besar. Tapi coba hitung nilai waktu uang (Time Value of Money). Lahan itu nilainya naik tiap tahun. Belum lagi inflasi 5% per tahun. Dalam 10 tahun, 2 Miliar itu nilainya menyusut drastis!",
     nextSceneId: "ch3_b_heru_1",
+    backgroundMusic: "tense",
   },
 
   ch3_b_heru_1: {
@@ -182,6 +195,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Heru",
     text: "Anak muda pintar. Oke, sewa. Saya tawarkan sewa flat (tetap) 100 juta per tahun selama 20 tahun. Dan karena ini sewa, saya bebas menggunakan lahan 2 Hektar itu, termasuk menebang beringin dan menggusur ladang Pak Bakri. Nanti Pak Bakri saya kasih pesangon kecil.",
     nextSceneId: "ch3_b_laras_1",
+    backgroundMusic: "tense",
   },
 
   ch3_b_laras_1: {
@@ -191,6 +205,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "Pak, kalau sewanya flat 100 juta selama 20 tahun, daya beli uang 100 juta di tahun ke-20 nanti mungkin cuma setara 30 juta hari ini. Kita rugi bandar!",
     nextSceneId: "ch3_b_mbah_darmo_1",
+    backgroundMusic: "tense",
   },
 
   ch3_b_mbah_darmo_1: {
@@ -200,6 +215,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Mbah Darmo",
     text: "Kalian ini ribut soal uang kertas, tapi menutup mata sama tanah yang menangis! Pak Kades, jangan gadaikan nyawa desa!",
     nextSceneId: "",
+    backgroundMusic: "tense",
     choices: [
       {
         text: "Pak Heru, kami bukan orang bodoh. Sewa tidak bisa flat. Kita gunakan persentase majemuk. Nilai sewa naik 5% setiap tahun mengikuti inflasi, DAN luasan yang disewa tetap mentok di 1,8 Hektar. Ladang warga bukan untuk disewa!",
@@ -225,6 +241,8 @@ export const chapter3Data: Record<string, ChapterData> = {
     // Narasi sedikit dimodif agar masuk akal dengan background warung
     text: "Keputusan akhir telah menyebar. Di Warung Kopi Bu Siti, desas-desus mulai memanas. Tergantung pilihan Kepala Desa, Pak Heru mungkin telah kembali ke kota dengan senyum puas atau wajah kesal. Namun di sini, warga desa yang menanggung akibatnya.",
     nextSceneId: "ch3_c_mbah_darmo_1",
+    narratorAudio: "narrator-ch3-conclusion.mp3",
+    backgroundMusic: "calm",
   },
 
   ch3_c_mbah_darmo_1: {
@@ -234,6 +252,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Mbah Darmo",
     text: "(Menatap lurus, entah dengan tatapan bangga atau penuh kekecewaan) Gusti Allah mboten sare (Tuhan tidak tidur). Tanah ini akan mencatat apa yang diputuskan Kades hari ini.",
     nextSceneId: "ch3_c_pak_bakri_1",
+    backgroundMusic: "calm",
   },
 
   ch3_c_pak_bakri_1: {
@@ -243,6 +262,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Pak Bakri",
     text: "(Mengaduk kopi dengan wajah gontai atau tersenyum lega) Nasib wong cilik memang selalu di ujung pena pejabat desa.",
     nextSceneId: "ch3_c_aris_1",
+    backgroundMusic: "calm",
   },
 
   ch3_c_aris_1: {
@@ -252,6 +272,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterName: "Briptu Aris",
     text: "(Melangkah masuk ke warung) Saya sudah dengar putusannya. Beberapa pemuda dusun timur mulai berkumpul di pos ronda. Kalau beringin itu benar-benar disentuh, atau ladang Pak Bakri dipagari, malam ini saya terpaksa harus menetapkan status Siaga Satu di desa kita.",
     nextSceneId: "ch3_c_laras_1",
+    backgroundMusic: "calm",
   },
 
   ch3_c_laras_1: {
@@ -260,6 +281,7 @@ export const chapter3Data: Record<string, ChapterData> = {
     characterImage: CHAR_LARAS,
     characterName: "Laras",
     text: "(Duduk di bangku panjang, memegang pelipisnya) Pilihan yang sangat berat. Berkas legalitasnya akan saya urus segera. Tapi bersiaplah... keputusan kas ini akan sangat menentukan nasib kita bulan depan.",
+    backgroundMusic: "calm",
     choices: [], // Kosong untuk men-trigger EndingScreen
   },
 };  
