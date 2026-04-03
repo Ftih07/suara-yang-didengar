@@ -23,6 +23,8 @@ export type ChapterData = {
   text: string;
   nextSceneId?: string;
   choices?: Choice[];
+  backgroundMusic?: 'calm' | 'tense' ; // Audio mood untuk background music
+  narratorAudio?: string; // Path relatif dari /audio/ (e.g., 'narrator-ch1-intro.mp3')
 };
 
 // Metadata per chapter untuk keperluan menu / HUD

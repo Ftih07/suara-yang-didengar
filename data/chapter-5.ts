@@ -44,7 +44,9 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: '',
         characterName: "Narasi",
         text: "Malam hari di Balai Desa Amanah. Suasana tak lagi riuh oleh demonstrasi — melainkan hening yang tegang. Sebuah proyektor menyorotkan grafik garis yang menanjak tajam ke dinding. Seluruh tokoh kunci hadir. Ini adalah sidang penentuan masa depan desa.",
-        nextSceneId: "ch5_pak_heru_1"
+        nextSceneId: "ch5_pak_heru_1",
+        backgroundMusic: "calm",
+        narratorAudio: "narrator-ch5-intro.mp3",
     },
 
     // ------------------------------------------------------------------
@@ -56,7 +58,8 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_HERU,
         characterName: "Pak Heru (Konsorsium Nasional)",
         text: "Bapak-bapak, Ibu-ibu, mari kita rasional. Pertanian komunal kalian selama ini hanya menghasilkan pertumbuhan linier. Grafiknya datar, y = mx + c. Hari ini panen seratus ton, tahun depan seratus lima ton. Kalau ada hama, malah minus! Tawaran Konsorsium kami adalah Corporate Farming",
-        nextSceneId: "ch5_pak_heru_2"
+        nextSceneId: "ch5_pak_heru_2",
+        backgroundMusic: "tense",
     },
 
     ch5_pak_heru_2: {
@@ -65,7 +68,8 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_HERU,
         characterName: "Pak Heru (Konsorsium Nasional)",
         text: "Serahkan seluruh pengelolaan 200 hektar sawah dan lahan desa ke perusahaan kami. Dengan teknologi dan pupuk kimia modern kami, panen kalian akan tumbuh secara eksponensial, y = a . bx! Keuntungannya berlipat ganda tiap tahun!",
-        nextSceneId: "ch5_bayu_1"
+        nextSceneId: "ch5_bayu_1",
+        backgroundMusic: "tense",
     },
 
     // ------------------------------------------------------------------
@@ -277,14 +281,27 @@ export const chapter5Data: Record<string, ChapterData> = {
     // ====================================================================
     //  KONKLUSI — Semua Cabang Bertemu Di Sini
     // ====================================================================
-
+    
     ch5_konklusi: {
         id: "ch5_konklusi",
+        backgroundImage: BG_KANTOR_MALAM,
+        characterImage: CHAR_LARAS,
+        characterName: "",
+        text: "Keputusan mutlak di akhir tahun telah diketuk. Kertas dokumen entah telah ditandatangani atau ditolak. Pak Heru mengemasi barangnya, sementara warga desa saling bertatapan ada yang matanya berbinar melihat peluang, ada yang memancarkan ketakutan, dan ada pula yang bernapas lega.",
+        nextSceneId: "ch5_farewell_pak_bakri",
+        narratorAudio: "narrator-ch5-conclusion.mp3",
+        backgroundMusic: "calm",
+
+    },
+
+    ch5_farewell_pak_bakri: {
+        id: "ch5_farewell_pak_bakri",
         backgroundImage: BG_KANTOR_MALAM,
         characterImage: CHAR_PAK_BAKRI,
         characterName: "Pak Bakri (Petani Kecil)",
         text: "(Berjalan menghampiri, tersenyum kecil) Dari beras bantuan sampai urusan pabrik raksasa... Bapak sudah menemani kami. Apa pun yang terjadi besok, setidaknya hari ini kami tahu siapa pemimpin kami yang sebenarnya.",
-        nextSceneId: "ch5_farewell_mbah"
+        nextSceneId: "ch5_farewell_mbah",
+        backgroundMusic: "calm",
     },
 
     ch5_farewell_mbah: {
@@ -293,7 +310,8 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_MBAH_DARMO,
         characterName: "Mbah Darmo (Sesepuh Desa)",
         text: "(Mengetukkan tongkat, berbalik menuju pintu keluar) Angin berubah, Kades. Sejarah akan menulis apakah tanganmu membangun surga untuk wargamu, atau malah membangun neraka yang indah.",
-        nextSceneId: "ch5_farewell_aris"
+        nextSceneId: "ch5_farewell_aris",
+        backgroundMusic: "calm",
     },
 
     ch5_farewell_aris: {
@@ -302,7 +320,8 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_BRIPTU_ARIS,
         characterName: "Briptu Aris (Petugas Keamanan)",
         text: "(Memberi hormat dengan tegap) Masa jabatan Bapak sudah menemui puncaknya. Tugas saya mengamankan desa ini telah selesai untuk periode ini. Semoga desa ini selalu amanah.",
-        nextSceneId: "ch5_farewell_laras"
+        nextSceneId: "ch5_farewell_laras",
+        backgroundMusic: "calm",
     },
 
     ch5_farewell_laras: {
@@ -311,7 +330,8 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_LARAS,
         characterName: "Laras (Sekretaris & Bendahara Desa)",
         text: "(Menutup buku besar, tersenyum) Data sudah final, Pak. Semua angka, semua peluang, semua tangisan dan tawa warga sudah terekam di buku ini. Selamat, Pak Kades. Bapak telah menyelesaikan perjalanan ini.",
-        nextSceneId: "ch5_the_end"
+        nextSceneId: "ch5_the_end",
+        backgroundMusic: "calm",
     },
 
     // ------------------------------------------------------------------
@@ -329,6 +349,7 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterName: "— THE END —",
         "nextSceneId": 'chA_ending', // Langsung ke ending utama, tanpa pilihan
         text: "(Layar perlahan meredup. Musik ambient pedesaan mengalun syahdu. Nasib Desa Amanah telah ditentukan oleh setiap keputusan yang Bapak buat sejak awal — dari beras bansos, rebutan air, sampai keputusan malam ini. Terima kasih telah bermain.)",
+        backgroundMusic: "calm",
     },
 
 
@@ -340,6 +361,7 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterName: '— THE END —',
         characterImage: CHAR_KADES,
         text: "Setelah 5 tahun mengabdi sebagai kades, Anda memutuskan untuk tidak mencalonkan diri lagi. Desa Amanah kini menjadi desa yang makmur dengan pertanian modern, tapi kesenjangan sosialnya melebar. Anda dikenang sebagai pemimpin yang visioner tapi kontroversial.",
+        backgroundMusic: "calm",
         nextSceneId: 'chA_end',
     },
     chA_end: {
@@ -349,6 +371,7 @@ export const chapter5Data: Record<string, ChapterData> = {
         characterImage: CHAR_KADES,
         text: "Saya akan kembali ke Solo, sebagai bakyat biasa",
         choices: [],
+        backgroundMusic: "calm",
 
     }
 

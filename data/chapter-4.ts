@@ -42,8 +42,10 @@ export const chapter4Data: Record<string, ChapterData> = {
         backgroundImage: BG_POS_RONDA,
         characterImage: '',
         characterName: "Narasi",
-        text: `Suasana mencekam di halaman Balai Desa Amanah. Asap hitam mengepul dari ban bekas yang dibakar di dekat gerbang. Puluhan warga membawa spanduk protes bertuliskan "Kades Pro-Pemodal!" dan "Kembalikan Air Kami!". Bayu berdiri di atas kap mobil pikap dengan megafon di tangannya. Briptu Aris dan beberapa anggota Linmas bersiaga membentuk barikade di depan pintu kaca. Di dalam    ruangan, Laras mengintip dari balik tirai dengan tangan gemetar, sementara Pak RT Salim mondar-mandir panik",`,
-        nextSceneId: "ch4_pak_bayu_1"
+        text: `Suasana mencekam di halaman Balai Desa Amanah. Asap hitam mengepul dari ban bekas yang dibakar di dekat gerbang. Puluhan warga membawa spanduk protes bertuliskan "Kades Pro-Pemodal!" dan "Kembalikan Air Kami!". Bayu berdiri di atas kap mobil pikap dengan megafon di tangannya. Briptu Aris dan beberapa anggota Linmas bersiaga membentuk barikade di depan pintu kaca. Di dalam    ruangan, Laras mengintip dari balik tirai dengan tangan gemetar, sementara Pak RT Salim mondar-mandir panik`,
+        nextSceneId: "ch4_pak_bayu_1",
+        backgroundMusic: "calm",
+        narratorAudio: "narrator-ch4-intro.mp3",
     },
 
     ch4_pak_bayu_1: {
@@ -52,7 +54,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_BAYU,
         characterName: "Pak Bayu",
         text: "Keluar, Pak Kades! Jangan sembunyi! Kami bawa petisi dengan 450 tanda tangan penolakan kebijakan desa! Secara statistik, ini mewakili 60% populasi orang dewasa di desa kita! Bapak sudah kehilangan legitimasi.",
-        nextSceneId: "ch4_pak_bayu_2"
+        nextSceneId: "ch4_pak_bayu_2",
+        backgroundMusic: "tense",
     },
 
     ch4_pak_bayu_2: {
@@ -61,7 +64,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_BAYU,
         characterName: "Pak Bayu",
         text: "Ketimpangan makin parah, Rasio Gini desa kita meroket karena kekayaan cuma mengumpul di elit balai desa!",
-        nextSceneId: "ch4_laras_1"
+        nextSceneId: "ch4_laras_1",
+        backgroundMusic: "tense",
     },
 
     ch4_laras_1: {
@@ -70,7 +74,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_LARAS,
         characterName: "Laras",
         text: "Pak, jangan dengarkan dia! Data Bayu itu skewed (bias)! 450 tanda tangan itu bukan sampel acak (random sampling).",
-        nextSceneId: "ch4_laras_2"
+        nextSceneId: "ch4_laras_2",
+        backgroundMusic: "tense",
     },
 
     ch4_laras_2: {
@@ -79,7 +84,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_LARAS,
         characterName: "Laras",
         text: "Mayoritas diambil dari satu klaster saja, yaitu Dusun Bawah yang kemarin sumurnya kering. Itu tidak merepresentasikan suara seluruh desa secara proporsional!",
-        nextSceneId: "ch_4_pak_rt_salim_1"
+        nextSceneId: "ch_4_pak_rt_salim_1",
+        backgroundMusic: "tense",
     },
 
     ch_4_pak_rt_salim_1: {
@@ -88,7 +94,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_RT_SALIM,
         characterName: "Pak RT Salim (Wakil Kades)",
         text: "Aduh... Pak Kades, mending Bapak keluar lewat pintu belakang saja. Saya dengar mereka mau menyegel balai desa. Kalau kita telepon Polres untuk minta bantuan Pasukan Anti Huru-Hara, gimana?",
-        nextSceneId: "ch4_briptu_aris_1"
+        nextSceneId: "ch4_briptu_aris_1",
+        backgroundMusic: "tense",
     },
 
     ch4_briptu_aris_1: {
@@ -98,6 +105,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Briptu Aris",
         text: "Pak Kades, saya sudah perintahkan Linmas untuk menjaga ketertiban. Tapi kalau situasi makin memanas, saya harus ambil tindakan tegas. Kita tidak bisa biarkan kerusuhan terjadi di desa ini.",
         nextSceneId: "",
+        backgroundMusic: "tense",
         choices: [
             {
                 text: "Saya tidak akan sembunyi dan membiarkan desa ini terbakar. Laras, bawa buku besar data desa. Kita hadapi Bayu, kita patahkan argumen statistiknya secara terbuka di depan warga.",
@@ -122,6 +130,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Narasi",
         text: "Pemain melangkah keluar balai desa. Massa bersorak marah, namun Briptu Aris sigap menahan mereka. Pemain mengambil alih megafon",
         nextSceneId: "ch4_a_pak_bayu_1",
+        backgroundMusic: "tense",
 
     },
 
@@ -131,7 +140,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_BAYU,
         characterName: "Pak Bayu",
         text: "Akhirnya berani keluar! Silakan lihat kertas ini, Pak! Ratusan orang menuntut keadilan. Bapak mau mengelak pakai rumus apa lagi sekarang?",
-        nextSceneId: "ch4_a_kades_1"
+        nextSceneId: "ch4_a_kades_1",
+        backgroundMusic: "tense",
     },
 
     ch4_a_kades_1: {
@@ -140,7 +150,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_KADES,
         characterName: "Kades",
         text: "Saya tidak mengelak, Bayu! Tapi kalau kamu mau bicara statistik, mari kita bedah. Dari 450 tanda tanganmu, 380 berasal dari Dusun Bawah. Ini namanya sampling error! Kamu tidak menghitung warga Dusun Timur yang sawahnya terselamatkan, atau buruh yang baru dapat kerja dari proyek yang kamu tentang itu!",
-        nextSceneId: "ch4_a_bu_ratna_1"
+        nextSceneId: "ch4_a_bu_ratna_1",
+        backgroundMusic: "tense",
     },
 
     ch4_a_bu_ratna_1: {
@@ -149,7 +160,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_IBU_RATNA,
         characterName: "Bu Ratna (Istri Kades)",
         text: "Betul, Pak Kades! Saya juga sudah survei kecil-kecilan di RT saya. Mayoritas warga di RT saya mendukung kebijakan pembangunan sumur itu! Mereka bilang itu membawa perubahan positif untuk desa kita!",
-        nextSceneId: "ch4_a_pak_bakri_1"
+        nextSceneId: "ch4_a_pak_bakri_1",
+        backgroundMusic: "tense",
     },
 
     ch4_a_pak_bakri_1: {
@@ -159,6 +171,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Pak Bakri (Ketua RT)",
         text: "Saya juga sudah kumpulkan data di RT saya. Hasilnya menunjukkan bahwa 70% warga di RT saya setuju dengan proyek sumur itu! Mereka bilang itu membawa perubahan positif untuk desa kita!",
         nextSceneId: "",
+        backgroundMusic: "tense",
         choices: [
             {
                 text: "Ibu Ratna benar. Bayu, turunkan megafonmu. Saya tantang kamu. Bawa 5 perwakilan dari 450 orang ini masuk ke ruangan saya sekarang. Kita buka data keuangan, dan kita cari solusi persentase bagi hasil desa yang adil bersama-sama. Yang lain, harap tenang!",
@@ -184,7 +197,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: '',
         characterName: "Narasi",
         text: "Pemain memilih bertahan di dalam ruangan bersama perangkat desa, mencari solusi pragmatis menggunakan angka uang untuk memadamkan kemarahan warga.",
-        nextSceneId: "ch4_b_laras_1"
+        nextSceneId: "ch4_b_laras_1",
+        backgroundMusic: "tense",
     },
 
     ch4_b_laras_1: {
@@ -193,7 +207,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_LARAS,
         characterName: "Laras",
         text: "Pak, pos dana tak terduga kita sudah habis. Satu-satunya cara adalah memotong 30% dari proyek betonisasi jalan dan 20% dari program PKK. Total kita bisa kumpulkan Rp 150 Juta. Kalau dibagi rata ke 450 demonstran, jatuhnya sekitar Rp 333.333 per orang. Rumusnya subsidi proporsional.",
-        nextSceneId: "ch4_b_pak_rt_salim_1"
+        nextSceneId: "ch4_b_pak_rt_salim_1",
+        backgroundMusic: "tense",
     },
 
     ch4_b_pak_rt_salim_1: {
@@ -202,7 +217,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_RT_SALIM,
         characterName: "Pak RT Salim",
         text: "Waduh! Pak Kades, kalau proyek jalan disunat 30%, kontraktor dari kabupaten bisa menuntut kita! Lagian, kalau yang demo dikasih uang Rp 300 ribu, besok warga yang nggak ikut demo pasti ikut-ikutan turun ke jalan minta jatah! Ini namanya bunuh diri politik!",
-        nextSceneId: "ch4_b_briptu_aris_1"
+        nextSceneId: "ch4_b_briptu_aris_1",
+        backgroundMusic: "tense",
     },
 
     ch4_b_briptu_aris_1: {
@@ -211,7 +227,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_BRIPTU_ARIS,
         characterName: "Briptu Aris",
         text: "Saya setuju dengan Pak RT. Ini bukan solusi, Pak. Ini pemerasan berkedok demonstrasi. Kalau Bapak kasih uangnya, Bapak menciptakan moral hazard. Hukum tumpul karena Bapak takut.",
-        nextSceneId: "ch4_b_bayu_1"
+        nextSceneId: "ch4_b_bayu_1",
+        backgroundMusic: "tense",
     },
 
     ch4_b_bayu_1: {
@@ -221,6 +238,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Pak Bayu",
         text: "Lima menit lagi, Pak Kades! Kalau tidak ada kepastian, kami akan segel balai desa ini!",
         nextSceneId: "",
+        backgroundMusic: "tense",
         choices: [
             {
                 text: "Ini bukan suap, ini program 'Padat Karya Tunai' dadakan. Laras, cairkan uangnya sekarang! Buat SK-nya bahwa 450 orang di depan itu kita pekerjakan untuk membersihkan saluran air desa dengan upah Rp 333 ribu. Kita bungkus secara legal agar desa tenang!",
@@ -247,7 +265,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: '',
         characterName: "Narasi",
         text: "Suasana di luar Balai Desa perlahan mereda atau justru berakhir dalam pembubaran paksa, tergantung pada keputusanmu. Asap ban bekas mulai tipis, tergantikan oleh ketegangan yang lebih senyap namun mendalam.",
-        nextSceneId: "ch4_conclusion_briptu_aris"
+        nextSceneId: "ch4_conclusion_briptu_aris",
+        backgroundMusic: "calm",
     },
 
     ch4_conclusion_briptu_aris: {
@@ -256,7 +275,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_BRIPTU_ARIS,
         characterName: "Briptu Aris",
         text: "Massa sudah bubar, Pak. Balai desa aman untuk sementara waktu. Tapi saya tidak bisa menjamin keamanan Bapak kalau malam hari berkeliling desa tanpa pengawalan.",
-        nextSceneId: "ch4_conclusion_pak_bakri"
+        nextSceneId: "ch4_conclusion_pak_bakri",
+        backgroundMusic: "calm",
     },
 
     ch4_conclusion_pak_bakri: {
@@ -265,7 +285,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_PAK_BAKRI,
         characterName: "Pak Bakri",
         text: "Mau ribut gimanapun, yang kecil tetap saja yang repot bersihin sampahnya.",
-        nextSceneId: "ch4_conclusion_bayu"
+        nextSceneId: "ch4_conclusion_bayu",
+        backgroundMusic: "calm",
     },
 
     ch4_conclusion_bayu: {
@@ -275,6 +296,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Pak Bayu",
         text: "Perjuangan belum selesai. Angka tidak pernah tidur, Pak Kades.",
         nextSceneId: "ch4_conclusion_laras",
+        backgroundMusic: "calm",
     },
 
     ch4_conclusion_laras: {
@@ -283,6 +305,8 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterImage: CHAR_LARAS,
         characterName: "Laras",
         text: "Hari yang sangat panjang... Saya akan siapkan laporan kejadian luar biasa hari ini untuk dikirim ke kecamatan. Pak Kades, apapun hasilnya tadi, fondasi desa kita sekarang benar-benar retak. Kita harus bersiap menghadapi bulan-bulan terberat menjelang akhir tahun..",
+        backgroundMusic: "calm",
+        narratorAudio: "narrator-ch4-conclusion.mp3",
         choices: []
     }
     // -------------------------------------------------------------------

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { hasSavedGame, loadGame, getPlayedChapters } from "../lib/game";
 import { GameState } from "@/types/chapter-data";
+import AudioManager from "@/lib/audioManager";
+import AudioControls from "@/components/AudioControls";
 type MainMenuProps = {
   onSelectChapter: (startId: string) => void;
   onContinueGame: () => void;
@@ -84,10 +86,38 @@ export default function MainMenu({
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [menuView, setMenuView] = useState<'main' | 'chapterSelect'>('main');
   const [playedChapters, setPlayedChapters] = useState<string[]>([]);
+  const [showAudioControls, setShowAudioControls] = useState(false);
 
   useEffect(() => {
     setHasSave(hasSavedGame());
     setPlayedChapters(getPlayedChapters());
+
+    // Aggressive autoplay attempt with fallback
+    const audioManager = AudioManager.getInstance();
+    
+    // Try immediate autoplay
+    audioManager.playBackgroundMusic('menu');
+    
+    // Fallback: if autoplay was blocked, try on first user interaction
+    const handleFirstInteraction = () => {
+      if (!audioManager.isBgMusicPlaying()) {
+        audioManager.playBackgroundMusic('menu');
+      }
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("touchstart", handleFirstInteraction);
+      window.removeEventListener("keydown", handleFirstInteraction);
+    };
+
+    window.addEventListener("click", handleFirstInteraction);
+    window.addEventListener("touchstart", handleFirstInteraction);
+    window.addEventListener("keydown", handleFirstInteraction);
+
+    return () => {
+      window.removeEventListener("click", handleFirstInteraction);
+      window.removeEventListener("touchstart", handleFirstInteraction);
+      window.removeEventListener("keydown", handleFirstInteraction);
+      // Don't stop music here, let GameScreen handle the transition
+    };
   }, []);
 
   const handleStartFresh = () => {
@@ -192,6 +222,21 @@ export default function MainMenu({
         {/* Slightly darken to make UI stand out */}
         <div className="absolute inset-0 bg-black/10" />
       </div>
+
+      {/* Audio Controls Toggle Button */}
+      <button
+        onClick={() => setShowAudioControls(!showAudioControls)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#5e3a21] border-3 border-[#8B4513] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
+        title={showAudioControls ? "Sembunyikan Audio Controls" : "Tampilkan Audio Controls"}
+        style={{
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3)",
+        }}
+      >
+        <span className="text-3xl">{showAudioControls ? "✖️" : "🔊"}</span>
+      </button>
+
+      {/* Audio Controls */}
+      <AudioControls visible={showAudioControls} onClose={() => setShowAudioControls(false)} />
 
       {menuView === "main" && (
         <div className="relative z-10 flex flex-col items-center w-full h-full pt-16">
