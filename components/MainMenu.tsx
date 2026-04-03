@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { hasSavedGame, loadGame, getPlayedChapters } from "../lib/game";
+import {
+  hasSavedGame,
+  loadGame,
+  getPlayedChapters,
+  hardResetGame,
+} from "../lib/game";
 import { GameState } from "@/types/chapter-data";
 import AudioManager from "@/lib/audioManager";
 import AudioControls from "@/components/AudioControls";
@@ -83,8 +88,10 @@ export default function MainMenu({
   const [showModal, setShowModal] = useState(false);
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [savedStats, setSavedStats] = useState<GameState | null>(null);
-  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
-  const [menuView, setMenuView] = useState<'main' | 'chapterSelect'>('main');
+  const [selectedChapterId, setSelectedChapterId] = useState<string | null>(
+    null,
+  );
+  const [menuView, setMenuView] = useState<"main" | "chapterSelect">("main");
   const [playedChapters, setPlayedChapters] = useState<string[]>([]);
   const [showAudioControls, setShowAudioControls] = useState(false);
 
@@ -139,6 +146,22 @@ export default function MainMenu({
     setSelectedChapterId(null);
   };
 
+  // Fungsi untuk mereset total semua progress game
+  const handleResetData = () => {
+    const confirmReset = window.confirm(
+      "AWAS! Tindakan ini akan menghapus SEMUA progress chapter yang sudah terbuka dan data save Anda. Apakah Anda benar-benar yakin?",
+    );
+
+    if (confirmReset) {
+      hardResetGame();
+      // Update state supaya UI langsung berubah
+      setHasSave(false);
+      setPlayedChapters([]);
+      alert("Semua data berhasil direset. Memulai lembaran baru!");
+      window.location.reload(); // Refresh halaman biar bersih total
+    }
+  };
+
   // Fungsi untuk menampilkan Status Desa
   const handleShowStatus = () => {
     const savedData = loadGame();
@@ -152,15 +175,67 @@ export default function MainMenu({
 
   const chapters = [
     { id: 1, title: "Chapter 1", startId: "ch1_intro", locked: false }, // selalu terbuka, starting point
-    { id: 2, title: "Chapter 2", startId: "ch2_intro", locked: !playedChapters.includes("ch1") },
-    { id: 3, title: "Chapter 3", startId: "ch3_intro", locked: !playedChapters.includes("ch2") },
-    { id: 4, title: "Chapter 4", startId: "ch4_intro", locked: !playedChapters.includes("ch3") },
-    { id: 5, title: "Chapter 5", startId: "ch5_intro", locked: !playedChapters.includes("ch4") },
-    { id: 6, title: "Chapter 6", startId: "ch6_intro", locked: true },
-    { id: 7, title: "Chapter 7", startId: "ch7_intro", locked: true },
-    { id: 8, title: "Chapter 8", startId: "ch8_intro", locked: true },
-    { id: 9, title: "Chapter 9", startId: "ch9_intro", locked: true },
-    { id: 10, title: "Chapter 10", startId: "ch10_intro", locked: true },
+    {
+      id: 2,
+      title: "Chapter 2",
+      startId: "ch2_intro",
+      locked: !playedChapters.includes("ch1"),
+    },
+    {
+      id: 3,
+      title: "Chapter 3",
+      startId: "ch3_intro",
+      locked: !playedChapters.includes("ch2"),
+    },
+    {
+      id: 4,
+      title: "Chapter 4",
+      startId: "ch4_intro",
+      locked: !playedChapters.includes("ch3"),
+    },
+    {
+      id: 5,
+      title: "Chapter 5",
+      startId: "ch5_intro",
+      locked: !playedChapters.includes("ch4"),
+    },
+
+    // Tambahkan isPermanentLock: true untuk chapter yang belum tersedia
+    {
+      id: 6,
+      title: "Chapter 6",
+      startId: "ch6_intro",
+      locked: true,
+      isPermanentLock: true,
+    },
+    {
+      id: 7,
+      title: "Chapter 7",
+      startId: "ch7_intro",
+      locked: true,
+      isPermanentLock: true,
+    },
+    {
+      id: 8,
+      title: "Chapter 8",
+      startId: "ch8_intro",
+      locked: true,
+      isPermanentLock: true,
+    },
+    {
+      id: 9,
+      title: "Chapter 9",
+      startId: "ch9_intro",
+      locked: true,
+      isPermanentLock: true,
+    },
+    {
+      id: 10,
+      title: "Chapter 10",
+      startId: "ch10_intro",
+      locked: true,
+      isPermanentLock: true,
+    },
   ];
 
   const handleChapterClick = (chapter: {
@@ -208,7 +283,7 @@ export default function MainMenu({
   );
 
   return (
-    <div className="relative w-full h-screen bg-black flex flex-col items-center justify-center font-serif overflow-hidden select-none">
+    <div className="relative w-full min-h-[100dvh] bg-black flex flex-col items-center justify-start md:justify-center font-serif overflow-y-auto overflow-x-hidden select-none pb-16">
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
@@ -255,7 +330,7 @@ export default function MainMenu({
           {/* Title */}
           <div className="mb-14">
             <h1
-              className="text-6xl md:text-[80px] font-black tracking-widest text-[#5e3a21] text-center px-4"
+              className="text-5xl md:text-6xl md:text-[80px] font-black tracking-widest text-[#5e3a21] text-center px-4 mt-12 md:mt-0"
               style={{
                 fontFamily: "Georgia, serif",
                 WebkitTextStroke: "3px #ebcca5",
@@ -278,8 +353,12 @@ export default function MainMenu({
             {/* Tombol Status Desa sekarang punya fungsi */}
             <WoodButton onClick={handleShowStatus}>STATUS DESA</WoodButton>
 
-            <WoodButton onClick={() => { }}>PENGATURAN</WoodButton>
-            <WoodButton onClick={() => { }}>KREDIT</WoodButton>
+            <WoodButton onClick={() => {}}>PENGATURAN</WoodButton>
+
+            {/* Ubah onClick di sini */}
+            <WoodButton onClick={handleResetData}>RESET DATA</WoodButton>
+            
+            <WoodButton onClick={() => {}}>KREDIT</WoodButton>
           </div>
         </div>
       )}
@@ -297,7 +376,7 @@ export default function MainMenu({
 
           {/* Title */}
           <h2
-            className="text-6xl font-black mb-16 tracking-wider"
+            className="text-6xl font-black mb-16 tracking-wider mt-12 md:mt-0 ml-8 md:ml-0"
             style={{
               color: "#5e3a21",
               WebkitTextStroke: "2px #ebcca5",
@@ -315,13 +394,19 @@ export default function MainMenu({
                 key={chapter.id}
                 onClick={() => handleChapterClick(chapter)}
                 disabled={chapter.locked}
-                className={`relative flex items-center h-19 w-full transition-all duration-300 ${chapter.locked
-                  ? "opacity-60 cursor-not-allowed contrast-75"
-                  : "hover:scale-105 active:scale-95 cursor-pointer"
-                  }`}
+                className={`relative flex items-center h-19 w-full transition-all duration-300 ${
+                  chapter.locked
+                    ? "opacity-60 cursor-not-allowed contrast-75"
+                    : "hover:scale-105 active:scale-95 cursor-pointer"
+                }`}
               >
+                {/* --- UPDATE DISINI: Gambar bg berubah berdasarkan isPermanentLock --- */}
                 <Image
-                  src="/ui/txt box 1.png"
+                  src={
+                    chapter.isPermanentLock
+                      ? "/ui/txt box 2.png"
+                      : "/ui/txt box 1.png"
+                  }
                   alt="btn bg"
                   fill
                   className="object-fill drop-shadow-xl pointer-events-none"
@@ -349,23 +434,45 @@ export default function MainMenu({
                   )}
                 </div>
 
-                {/* Chapter Title */}
-                <span
-                  className="relative z-10 text-[26px] font-bold ml-6 mt-1"
-                  style={{
-                    color: "#5e3a21",
-                    textShadow:
-                      "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
-                    fontFamily: "Georgia, serif",
-                  }}
-                >
-                  {chapter.title}
-                </span>
+                {/* Chapter Title & Coming Soon */}
+                <div className="relative z-10 ml-6 flex flex-col items-start justify-center">
+                  <span
+                    className="text-[22px] md:text-[26px] font-bold"
+                    style={{
+                      color: "#5e3a21",
+                      textShadow:
+                        "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5, 1px -1px 0px #ebcca5, -1px 1px 0px #ebcca5",
+                      fontFamily: "Georgia, serif",
+                      lineHeight: "1.1",
+                    }}
+                  >
+                    {chapter.title}
+                  </span>
+
+                  {/* Munculkan tulisan Coming Soon khusus untuk yang permanent lock */}
+                  {chapter.isPermanentLock && (
+                    <span
+                      className="text-[10px] md:text-xs font-black tracking-widest uppercase mt-0.5"
+                      style={{
+                        color: "#8c5e35",
+                        textShadow:
+                          "1px 1px 0px #ebcca5, -1px -1px 0px #ebcca5",
+                        fontFamily: "Georgia, serif",
+                      }}
+                    >
+                      ⏳ Coming Soon
+                    </span>
+                  )}
+                </div>
+
+                {/* Checklist jika sudah dimainkan */}
                 {playedChapters.includes(chapter.startId.split("_")[0]) && (
                   <span
                     className="absolute right-6 z-20 text-[28px]"
                     title="Sudah dimainkan"
-                    style={{ filter: "drop-shadow(0px 0px 6px rgba(34, 197, 94, 0.8))" }}
+                    style={{
+                      filter: "drop-shadow(0px 0px 6px rgba(34, 197, 94, 0.8))",
+                    }}
                   >
                     ✅
                   </span>
