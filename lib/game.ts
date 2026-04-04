@@ -53,7 +53,7 @@ export const saveGame = (currentSceneId: string, stats: GameState): void => {
         const saveData: SaveData = {
             currentSceneId,
             stats,
-            chapterId: currentSceneId.split("-")[0], // Extract chapter ID from scene ID
+            chapterId: currentSceneId.split("_")[0], // Extract chapter ID from scene ID
             timestamp: Date.now(),
         };
         localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(saveData));
@@ -143,4 +143,18 @@ export const markChapterPlayed = (chapterId: string, finalStats: GameState): voi
     } catch (error) {
         console.error("Failed to mark chapter as played:", error);
     }
+};
+
+/**
+ * FITUR TAMBAHAN: Hapus TOTAL semua data (Cocok buat tombol Reset di menu Pengaturan)
+ */
+export const hardResetGame = (): void => {
+  try {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(AUTOSAVE_KEY);
+    localStorage.removeItem(PLAYED_CHAPTERS_KEY);
+    localStorage.removeItem(CHAPTER_STATS_KEY);
+  } catch (error) {
+    console.error("Failed to hard reset game:", error);
+  }
 };
