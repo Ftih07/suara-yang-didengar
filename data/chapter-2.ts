@@ -227,6 +227,7 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Narasi",
     text: "Tuas pintu air akhirnya diputar dengan suara besi berderit yang keras. Air yang awalnya tertahan kini terbagi sesuai dengan keputusan Kepala Desa. Sebagian mengalir membasahi parit kering menuju sawah, sebagian lagi bergemuruh masuk ke dalam pipa besar milik desa.",
     nextSceneId: "ch2_c_siti_1",
+    narratorAudio: "narrator-ch2-conclusion.mp3",
     backgroundMusic: "calm",
   },
 
@@ -267,7 +268,6 @@ export const chapter2Data: Record<string, ChapterData> = {
     characterName: "Laras",
     text: "(Mengunci buku catatannya) Saya akan panggil petugas teknis untuk memantau fluktuasi debit airnya malam ini. Tapi Pak... gara-gara krisis ini, beberapa pengusaha dari luar desa sudah mulai menawar tanah kering milik warga dengan harga murah. Kita punya masalah baru yang menunggu di meja Bapak besok pagi.",
     backgroundMusic: "calm",
-    narratorAudio: "narrator-ch2-conclusion.mp3",
     choices: [], // Kosong untuk men-trigger EndingScreen
   },
 };

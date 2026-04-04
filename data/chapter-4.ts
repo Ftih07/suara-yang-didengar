@@ -44,7 +44,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Narasi",
         text: `Suasana mencekam di halaman Balai Desa Amanah. Asap hitam mengepul dari ban bekas yang dibakar di dekat gerbang. Puluhan warga membawa spanduk protes bertuliskan "Kades Pro-Pemodal!" dan "Kembalikan Air Kami!". Bayu berdiri di atas kap mobil pikap dengan megafon di tangannya. Briptu Aris dan beberapa anggota Linmas bersiaga membentuk barikade di depan pintu kaca. Di dalam    ruangan, Laras mengintip dari balik tirai dengan tangan gemetar, sementara Pak RT Salim mondar-mandir panik`,
         nextSceneId: "ch4_pak_bayu_1",
-        backgroundMusic: "calm",
+        backgroundMusic: "tense",
         narratorAudio: "narrator-ch4-intro.mp3",
     },
 
@@ -128,8 +128,9 @@ export const chapter4Data: Record<string, ChapterData> = {
         backgroundImage: BG_HALAMAN_BALAI_DESA,
         characterImage: '',
         characterName: "Narasi",
-        text: "Pemain melangkah keluar balai desa. Massa bersorak marah, namun Briptu Aris sigap menahan mereka. Pemain mengambil alih megafon",
+        text: "Pak Wiro melangkah keluar balai desa. Massa bersorak marah, namun Briptu Aris sigap menahan mereka. Pemain mengambil alih megafon",
         nextSceneId: "ch4_a_pak_bayu_1",
+        narratorAudio: "narrator-ch4-branch-a1.mp3",
         backgroundMusic: "tense",
 
     },
@@ -196,8 +197,9 @@ export const chapter4Data: Record<string, ChapterData> = {
         backgroundImage: BG_HALAMAN_BALAI_DESA,
         characterImage: '',
         characterName: "Narasi",
-        text: "Pemain memilih bertahan di dalam ruangan bersama perangkat desa, mencari solusi pragmatis menggunakan angka uang untuk memadamkan kemarahan warga.",
+        text: "Pak Wiro memilih bertahan di dalam ruangan bersama perangkat desa, mencari solusi pragmatis menggunakan angka uang untuk memadamkan kemarahan warga.",
         nextSceneId: "ch4_b_laras_1",
+        narratorAudio: "narrator-ch4-branch-b1.mp3",
         backgroundMusic: "tense",
     },
 
@@ -267,6 +269,7 @@ export const chapter4Data: Record<string, ChapterData> = {
         text: "Suasana di luar Balai Desa perlahan mereda atau justru berakhir dalam pembubaran paksa, tergantung pada keputusanmu. Asap ban bekas mulai tipis, tergantikan oleh ketegangan yang lebih senyap namun mendalam.",
         nextSceneId: "ch4_conclusion_briptu_aris",
         backgroundMusic: "calm",
+        narratorAudio: "narrator-ch4-conclusion.mp3",
     },
 
     ch4_conclusion_briptu_aris: {
@@ -306,7 +309,6 @@ export const chapter4Data: Record<string, ChapterData> = {
         characterName: "Laras",
         text: "Hari yang sangat panjang... Saya akan siapkan laporan kejadian luar biasa hari ini untuk dikirim ke kecamatan. Pak Kades, apapun hasilnya tadi, fondasi desa kita sekarang benar-benar retak. Kita harus bersiap menghadapi bulan-bulan terberat menjelang akhir tahun..",
         backgroundMusic: "calm",
-        narratorAudio: "narrator-ch4-conclusion.mp3",
         choices: []
     }
     // -------------------------------------------------------------------
