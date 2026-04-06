@@ -81,17 +81,15 @@ export default function GameScreen({
 
   // --- TAMBAHAN BARU: STATE FULLSCREEN & DETEKSI MOBILE ---
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
+  const [showAudioControls, setShowAudioControls] = useState(false);
 
   useEffect(() => {
-    // Deteksi apakah perangkat adalah mobile (bukan Desktop Site)
-    const checkMobile = () => {
-      const userAgent =
-        typeof window !== "undefined" ? navigator.userAgent : "";
-      setIsMobileDevice(/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent));
-    };
-    checkMobile();
+    // Deteksi mobile device
+    const userAgent = navigator.userAgent;
+    setIsMobileDevice(/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent));
 
+    // Fullscreen change listener
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
@@ -193,18 +191,23 @@ export default function GameScreen({
   useEffect(() => {
     const audioManager = AudioManager.getInstance();
     
-    // Play background music jika scene punya field backgroundMusic
-    if (currentScene.backgroundMusic) {
-      audioManager.playBackgroundMusic(currentScene.backgroundMusic);
-    }
-    
-    // Play narrator jika scene punya field narratorAudio
-    if (currentScene.narratorAudio) {
-      audioManager.playNarrator(currentScene.narratorAudio);
-    } else {
-      // Stop narrator jika scene tidak punya narrator
-      audioManager.stopNarrator();
-    }
+    // Resume AudioContext jika belum (untuk kasus user langsung masuk game)
+    audioManager.resumeAudioContext().then(() => {
+      // Play background music jika scene punya field backgroundMusic
+      if (currentScene.backgroundMusic) {
+        audioManager.playBackgroundMusic(currentScene.backgroundMusic);
+      }
+      
+      // Play narrator jika scene punya field narratorAudio
+      if (currentScene.narratorAudio) {
+        audioManager.playNarrator(currentScene.narratorAudio);
+      } else {
+        // Stop narrator jika scene tidak punya narrator
+        audioManager.stopNarrator();
+      }
+    }).catch((error) => {
+      console.warn('Failed to start audio:', error);
+    });
     
     // Cleanup saat unmount (balik ke menu)
     return () => {
@@ -287,7 +290,7 @@ export default function GameScreen({
       {/* Tombol Aksi (Pojok Kanan Atas) - Sesuai Tema */}
       <div className="absolute top-4 right-4 md:top-5 md:right-5 z-50 flex gap-3 pointer-events-auto">
         {/* Tombol Fullscreen */}
-        {!isMobileDevice && (
+        {isMobileDevice === false && (
           <button
             onClick={toggleFullscreen}
             className="group relative h-[35px] md:h-[45px] px-4 md:px-6 flex items-center justify-center shrink-0 transition-all duration-300 hover:scale-[1.05] active:scale-[0.95]"
@@ -609,8 +612,20 @@ export default function GameScreen({
           )}
       </div>
 
+      {/* Audio Controls Toggle Button */}
+      <button
+        onClick={() => setShowAudioControls(!showAudioControls)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#5e3a21] border-3 border-[#8B4513] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
+        title={showAudioControls ? "Sembunyikan Audio Controls" : "Tampilkan Audio Controls"}
+        style={{
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3)",
+        }}
+      >
+        <span className="text-3xl">{showAudioControls ? "✖️" : "🔊"}</span>
+      </button>
+
       {/* Audio Controls */}
-      <AudioControls visible={true} />
+      <AudioControls visible={showAudioControls} onClose={() => setShowAudioControls(false)} />
     </div>
   );
 }

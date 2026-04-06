@@ -2,7 +2,7 @@
 // Singleton Audio Manager untuk mengelola background music dan narrator
 // Menggunakan Howler.js untuk audio playback yang robust
 
-import { Howl } from 'howler';
+import { Howl, Howler } from 'howler';
 
 type BackgroundMood = 'menu' | 'calm' | 'tense'  ;
 
@@ -30,6 +30,7 @@ class AudioManager {
   private narratorMuted: boolean = false;
   private bgVolume: number = 0.5;
   private narratorVolume: number = 0.8;
+  private audioContextResumed: boolean = false;
   
   // Audio file mappings
   private readonly BG_MUSIC_MAP: Record<BackgroundMood, string> = {
@@ -59,37 +60,71 @@ class AudioManager {
   }
 
   /**
+   * Resume AudioContext untuk unlock autoplay restrictions
+   * Harus dipanggil setelah user gesture (click, tap, keyboard)
+   */
+  public async resumeAudioContext(): Promise<void> {
+    if (this.audioContextResumed) {
+      return;
+    }
+
+    try {
+      // Resume Howler's global AudioContext jika suspended
+      if (Howler.ctx && Howler.ctx.state === 'suspended') {
+        await Howler.ctx.resume();
+      }
+      this.audioContextResumed = true;
+    } catch (error) {
+      console.warn('Failed to resume AudioContext:', error);
+    }
+  }
+
+  /**
+   * Helper untuk cleanup background music dengan Promise
+   */
+  private cleanupBgMusic(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.bgMusic) {
+        resolve();
+        return;
+      }
+
+      const currentVolume = this.bgMusic.volume();
+      this.bgMusic.fade(currentVolume, 0, 300);
+      
+      setTimeout(() => {
+        this.bgMusic?.stop();
+        this.bgMusic?.unload();
+        this.bgMusic = null;
+        resolve();
+      }, 300);
+    });
+  }
+
+  /**
    * Play background music berdasarkan mood
    * Akan restart jika mood berbeda, atau continue jika mood sama
    */
-  public playBackgroundMusic(mood: BackgroundMood): void {
+  public async playBackgroundMusic(mood: BackgroundMood): Promise<void> {
     // Jika sudah playing music dengan mood yang sama, skip
     if (this.currentBgMood === mood && this.bgMusic && this.bgMusic.playing()) {
       return;
     }
 
-    // Stop & cleanup previous music
-    if (this.bgMusic) {
-      this.bgMusic.fade(this.bgMusic.volume(), 0, 500);
-      setTimeout(() => {
-        this.bgMusic?.stop();
-        this.bgMusic?.unload();
-        this.bgMusic = null;
-      }, 500);
-    }
+    // Cleanup previous music dengan await untuk prevent race condition
+    await this.cleanupBgMusic();
 
     // Create new music instance
     this.bgMusic = new Howl({
       src: [this.BG_MUSIC_MAP[mood]],
       loop: true,
       volume: this.bgMuted ? 0 : this.bgVolume,
-      html5: true, // Better for streaming long audio files
-      preload: 'metadata', // Only load metadata, not full audio - streaming only
+      html5: false, // Gunakan Web Audio API untuk file kecil
       autoplay: false, // Explicit control
-      format: ['mp3'], // Explicit format for optimization
+      format: ['mp3'],
     });
 
-    // Fade in dan play
+    // Play dan fade in
     this.bgMusic.play();
     if (!this.bgMuted) {
       this.bgMusic.fade(0, this.bgVolume, 1000);
@@ -101,16 +136,9 @@ class AudioManager {
   /**
    * Stop background music dengan fade out
    */
-  public stopBackgroundMusic(): void {
-    if (!this.bgMusic) return;
-
-    this.bgMusic.fade(this.bgMusic.volume(), 0, 500);
-    setTimeout(() => {
-      this.bgMusic?.stop();
-      this.bgMusic?.unload();
-      this.bgMusic = null;
-      this.currentBgMood = null;
-    }, 500);
+  public async stopBackgroundMusic(): Promise<void> {
+    await this.cleanupBgMusic();
+    this.currentBgMood = null;
   }
 
   /**
@@ -125,9 +153,10 @@ class AudioManager {
     this.narrator = new Howl({
       src: [`/audio/${audioPath}`],
       volume: this.narratorMuted ? 0 : this.narratorVolume,
-      html5: true,
-      preload: 'metadata', // Only load metadata, not full audio - streaming only
-      format: ['mp3'], // Explicit format for optimization
+      html5: false, // Gunakan Web Audio API untuk efisiensi
+      pool: 1, // Reuse 1 instance untuk prevent pool exhaustion
+      autoplay: false,
+      format: ['mp3'],
       onend: () => {
         // Auto cleanup setelah selesai
         this.narrator?.unload();

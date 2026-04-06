@@ -5,7 +5,8 @@ import MainMenu from "@/components/MainMenu";
 import GameScreen from "@/components/GameScreen";
 import { loadGame, deleteSavedGame, getChapterFinalStats } from "@/lib/game";
 import { GameState } from "@/types/chapter-data";
-import { allStoryData } from "@/data"
+import { allStoryData } from "@/data";
+import AudioManager from "@/lib/audioManager";
 
 
 const PREV_CHAPTER: Record<string, string> = {
@@ -55,6 +56,11 @@ export default function Home() {
   };
 
   const handleBackToMenu = () => {
+    const audioManager = AudioManager.getInstance();
+    // Stop narrator saat kembali ke menu
+    audioManager.stopNarrator();
+    // Play menu music
+    audioManager.playBackgroundMusic('menu');
     setView('menu');
   };
 
