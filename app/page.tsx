@@ -57,9 +57,10 @@ export default function Home() {
 
   const handleBackToMenu = () => {
     const audioManager = AudioManager.getInstance();
-    // Stop narrator saat kembali ke menu
+    // Stop semua audio game terlebih dahulu
     audioManager.stopNarrator();
-    // Play menu music
+    audioManager.stopBackgroundMusic();
+    // Baru play menu music
     audioManager.playBackgroundMusic('menu');
     setView('menu');
   };
