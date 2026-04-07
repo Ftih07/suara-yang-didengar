@@ -1,3 +1,4 @@
+'use client'
 // lib/audioManager.ts
 // Singleton Audio Manager untuk mengelola background music dan narrator
 // Menggunakan Howler.js untuk audio playback yang robust
