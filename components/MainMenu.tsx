@@ -99,27 +99,38 @@ export default function MainMenu({
     setHasSave(hasSavedGame());
     setPlayedChapters(getPlayedChapters());
 
-    // Aggressive autoplay attempt with fallback
     const audioManager = AudioManager.getInstance();
+    let isUnmounted = false;
     
-    // Try immediate autoplay
-    audioManager.playBackgroundMusic('menu');
-    
-    // Fallback: if autoplay was blocked, try on first user interaction
-    const handleFirstInteraction = () => {
-      if (!audioManager.isBgMusicPlaying()) {
-        audioManager.playBackgroundMusic('menu');
+    // Handler untuk unlock AudioContext + start music setelah user gesture
+    const handleFirstInteraction = async () => {
+      if (isUnmounted) return;
+      
+      try {
+        // Resume AudioContext terlebih dahulu
+        await audioManager.resumeAudioContext();
+        
+        // Baru play music jika belum playing
+        if (!audioManager.isBgMusicPlaying()) {
+          await audioManager.playBackgroundMusic('menu');
+        }
+      } catch (error) {
+        console.warn('Failed to start audio:', error);
       }
+      
+      // Cleanup listeners setelah berhasil
       window.removeEventListener("click", handleFirstInteraction);
       window.removeEventListener("touchstart", handleFirstInteraction);
       window.removeEventListener("keydown", handleFirstInteraction);
     };
 
-    window.addEventListener("click", handleFirstInteraction);
-    window.addEventListener("touchstart", handleFirstInteraction);
-    window.addEventListener("keydown", handleFirstInteraction);
+    // Setup listeners untuk first user interaction
+    window.addEventListener("click", handleFirstInteraction, { once: false });
+    window.addEventListener("touchstart", handleFirstInteraction, { once: false });
+    window.addEventListener("keydown", handleFirstInteraction, { once: false });
 
     return () => {
+      isUnmounted = true;
       window.removeEventListener("click", handleFirstInteraction);
       window.removeEventListener("touchstart", handleFirstInteraction);
       window.removeEventListener("keydown", handleFirstInteraction);

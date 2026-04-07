@@ -77,21 +77,18 @@ export default function GameScreen({
   const isPlayer =
     currentScene.characterName.includes("Anda") ||
     currentScene.characterName.includes("Pak Kades");
-  const characterPosClass = "right-5 md:right-[15%]";
 
   // --- TAMBAHAN BARU: STATE FULLSCREEN & DETEKSI MOBILE ---
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isMobileDevice, setIsMobileDevice] = useState<boolean | null>(null);
+  const [showAudioControls, setShowAudioControls] = useState(false);
 
   useEffect(() => {
-    // Deteksi apakah perangkat adalah mobile (bukan Desktop Site)
-    const checkMobile = () => {
-      const userAgent =
-        typeof window !== "undefined" ? navigator.userAgent : "";
-      setIsMobileDevice(/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent));
-    };
-    checkMobile();
+    // Deteksi mobile device
+    const userAgent = navigator.userAgent;
+    setIsMobileDevice(/Mobi|Android|iPhone|iPad|iPod/i.test(userAgent));
 
+    // Fullscreen change listener
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
@@ -181,7 +178,7 @@ export default function GameScreen({
         setShowSkipButton(false); // Sembunyikan skip button saat typing selesai
         if (typingTimerRef.current) clearInterval(typingTimerRef.current);
       }
-    }, 32 ); // Kecepatan ketikan dalam milidetik
+    }, 32); // Kecepatan ketikan dalam milidetik
 
     return () => {
       clearTimeout(skipButtonTimer);
@@ -192,27 +189,27 @@ export default function GameScreen({
   // Audio Playback Logic
   useEffect(() => {
     const audioManager = AudioManager.getInstance();
-    
-    // Play background music jika scene punya field backgroundMusic
-    if (currentScene.backgroundMusic) {
-      audioManager.playBackgroundMusic(currentScene.backgroundMusic);
-    }
-    
-    // Play narrator jika scene punya field narratorAudio
-    if (currentScene.narratorAudio) {
-      audioManager.playNarrator(currentScene.narratorAudio);
-    } else {
-      // Stop narrator jika scene tidak punya narrator
-      audioManager.stopNarrator();
-    }
-    
-    // Cleanup saat unmount (balik ke menu)
-    return () => {
-      if (showEnding) {
-        // Jika sudah ending, cleanup semua audio
-        audioManager.cleanup();
+
+    // Resume AudioContext jika belum (untuk kasus user langsung masuk game)
+    audioManager.resumeAudioContext().then(() => {
+      // Play background music jika scene punya field backgroundMusic
+      if (currentScene.backgroundMusic) {
+        audioManager.playBackgroundMusic(currentScene.backgroundMusic);
       }
-    };
+
+      // Play narrator jika scene punya field narratorAudio
+      if (currentScene.narratorAudio) {
+        audioManager.playNarrator(currentScene.narratorAudio);
+      } else {
+        // Stop narrator jika scene tidak punya narrator
+        audioManager.stopNarrator();
+      }
+    }).catch((error) => {
+      console.warn('Failed to start audio:', error);
+    });
+
+    // Cleanup sudah di-handle di handleBackToMenu()
+    // Tidak perlu cleanup di sini untuk menghindari race condition
   }, [currentSceneId, currentScene, showEnding]);
 
   const handleSkipTyping = () => {
@@ -287,7 +284,7 @@ export default function GameScreen({
       {/* Tombol Aksi (Pojok Kanan Atas) - Sesuai Tema */}
       <div className="absolute top-4 right-4 md:top-5 md:right-5 z-50 flex gap-3 pointer-events-auto">
         {/* Tombol Fullscreen */}
-        {!isMobileDevice && (
+        {isMobileDevice === false && (
           <button
             onClick={toggleFullscreen}
             className="group relative h-[35px] md:h-[45px] px-4 md:px-6 flex items-center justify-center shrink-0 transition-all duration-300 hover:scale-[1.05] active:scale-[0.95]"
@@ -396,30 +393,29 @@ export default function GameScreen({
         </div>
       </div>
 
-      {/* --- LAYER 3: CHARACTER --- */}
-      {/* Karakter akan HILANG otomatis kalau showChoices sedang true */}
-      {currentScene.characterImage && !showChoices && (
-        <div
-          className={`absolute bottom-50 ${characterPosClass} z-10 w-87.5 h-150 md:w-112.5 md:h-200 transition-all duration-500 pointer-events-none`}
-        >
-          <Image
-            src={currentScene.characterImage}
-            alt="character"
-            fill
-            className={`object-contain object-bottom drop-shadow-2xl ${isPlayer ? "scale-x-[-1]" : ""}`}
-            unoptimized
-          />
-        </div>
-      )}
-
-      {/* --- LAYER 4: DIALOGUE & CHOICES CONTAINER --- */}
+      {/* --- LAYER 4 & 3: DIALOGUE CONTAINER WITH CHARACTER --- */}
       {/* max-h-[65vh] di mobile biar gak nabrak status desa, flex-col justify-end biar nekan ke bawah */}
-      <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl flex flex-col justify-end gap-2 md:gap-4 pointer-events-none max-h-[65vh] md:max-h-[95vh]">
+      <div className="absolute bottom-[clamp(0.5rem,2vw,1rem)] left-1/2 -translate-x-1/2 z-30 w-[95%] max-w-5xl flex flex-col justify-end gap-[clamp(0.5rem,1.5vw,1rem)] pointer-events-none max-h-[clamp(65vh,80vh,95vh)]">
         {/* TEXT DIALOG BOX */}
         {!showChoices && (
           <div
             className="relative w-full min-h-55 max-h-[50vh] pointer-events-auto shrink-0 flex flex-col"
           >
+            {/* --- LAYER 3: CHARACTER (Anchored top-right of Dialog Box) --- */}
+            {currentScene.characterImage && (
+              <div
+                className="absolute right-[clamp(0.5rem,3vw,2rem)] bottom-[clamp(85%,88%,90%)] -z-10 w-[clamp(17.5rem,26vw,28.125rem)] h-[clamp(28rem,40vw,50rem)] transition-all duration-500 pointer-events-none"
+              >
+                <Image
+                  src={currentScene.characterImage}
+                  alt="character"
+                  fill
+                  className={`object-contain object-bottom drop-shadow-2xl ${isPlayer ? "scale-x-[-1]" : ""}`}
+                  unoptimized
+                />
+              </div>
+            )}
+
             <div className="absolute inset-0 z-0 drop-shadow-2xl">
               <Image
                 src={"/ui/txt box 1.png"}
@@ -439,19 +435,19 @@ export default function GameScreen({
               />
             </div>
 
-            <div className="relative z-20 h-full p-4 md:p-8 flex flex-col pt-10 md:pt-12">
-              <div className="absolute -top-3 left-4 md:left-8 z-30 drop-shadow-xl scale-[0.85] md:scale-100 origin-left">
-                <div className="relative inline-block px-8 py-2 md:py-3">
+            <div className="relative z-20 h-full p-[clamp(1rem,3vw,2rem)] flex flex-col pt-[clamp(2.5rem,5vw,3rem)]">
+              <div className="absolute -top-3 left-[clamp(1rem,3vw,2rem)] z-30 drop-shadow-xl scale-[clamp(0.85,1.5vw,1)] origin-left">
+                <div className="relative inline-block px-[clamp(1.5rem,4vw,2rem)] py-[clamp(0.5rem,1.5vw,0.75rem)]">
                   <div className="absolute inset-0 bg-[#3b2a1a] border-2 border-[#b08d6a] rounded-t-xl rounded-br-xl opacity-90 skew-x-[-10deg]"></div>
-                  <span className="relative z-10 text-[#fcedd9] font-bold text-sm md:text-xl font-serif drop-shadow-md tracking-wider">
+                  <span className="relative z-10 text-[#fcedd9] font-bold text-[clamp(0.875rem,2vw,1.25rem)] font-serif drop-shadow-md tracking-wider">
                     {currentScene.characterName}
                   </span>
                 </div>
               </div>
 
               {/* min-h-0 ini KUNCI biar overflow-y-auto jalan sempurna di flexbox */}
-              <div className="overflow-y-auto pl-4 pr-8 md:pl-10 md:pr-14 py-2 flex-1 min-h-0 pointer-events-auto">
-                <p className="text-[#3b2a1a] text-base md:text-2xl leading-relaxed font-serif font-bold drop-shadow-sm pb-6">
+              <div className="overflow-y-auto pl-[clamp(1rem,3vw,2.5rem)] pr-[clamp(2rem,5vw,3.5rem)] py-2 flex-1 min-h-0 pointer-events-auto">
+                <p className="text-[#3b2a1a] text-[clamp(1rem,2.5vw,1.5rem)] leading-relaxed font-serif font-bold drop-shadow-sm pb-6">
                   {displayedText}
                   {isTyping && (
                     <span className="inline-block w-[6px] md:w-2 bg-[#3b2a1a] ml-1 animate-pulse h-[1.2em] align-middle"></span>
@@ -478,11 +474,11 @@ export default function GameScreen({
         {/* CHOICES CONTAINER */}
         {showChoices && (
           <div className="flex flex-col items-center w-full pointer-events-auto overflow-y-auto max-h-full pb-2">
-            <div className="mb-6 md:mb-10 w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite] shrink-0">
-              <div className="relative px-4 py-3 md:py-6 bg-linear-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
-                <div className="absolute top-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
+            <div className="mb-[clamp(1.5rem,3vw,2.5rem)] w-full flex flex-col items-center animate-[pulse_3s_ease-in-out_infinite] shrink-0">
+              <div className="relative px-4 py-[clamp(0.75rem,2vw,1.5rem)] bg-linear-to-r from-transparent via-[#895129] to-transparent w-full flex flex-col items-center justify-center backdrop-blur-[2px]">
+                <div className="absolute top-0 w-[clamp(75%,50vw,50%)] h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
                 <p
-                  className="text-white text-sm md:text-2xl font-black font-serif tracking-[0.2em] md:tracking-[0.3em] text-center uppercase relative z-10"
+                  className="text-white text-[clamp(0.875rem,2.5vw,1.5rem)] font-black font-serif tracking-[clamp(0.2em,0.3vw,0.3em)] text-center uppercase relative z-10"
                   style={{
                     textShadow:
                       "0px 4px 15px rgba(0,0,0,1), 2px 2px 0px rgba(140, 94, 53, 0.8), -1px -1px 0px rgba(0,0,0,0.8)",
@@ -490,16 +486,16 @@ export default function GameScreen({
                 >
                   ✧ Keputusan Ada Di Tanganmu ✧
                 </p>
-                <div className="absolute bottom-0 w-3/4 md:w-1/2 h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
+                <div className="absolute bottom-0 w-[clamp(75%,50vw,50%)] h-0.5 bg-linear-to-r from-transparent via-[#d4bc96] to-transparent"></div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-[clamp(0.75rem,1.5vw,1rem)] w-full">
               {currentScene.choices!.map((choice, index) => (
                 <button
                   key={index}
                   onClick={(e) => handleChoice(e, choice.nextId, choice.effect)}
-                  className="group relative w-full min-h-[60px] md:min-h-[80px] shrink-0 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
+                  className="group relative w-full min-h-[clamp(60px,8vw,80px)] shrink-0 transition-all duration-300 hover:scale-[1.03] active:scale-[0.97]"
                 >
                   <div className="absolute inset-0 z-0 drop-shadow-2xl">
                     <Image
@@ -519,8 +515,8 @@ export default function GameScreen({
                       unoptimized
                     />
                   </div>
-                  <div className="relative z-20 px-6 py-4 flex items-center justify-center h-full">
-                    <p className="text-[#3b2a1a] text-sm md:text-lg font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
+                  <div className="relative z-20 px-[clamp(1.5rem,3vw,2rem)] py-[clamp(1rem,2vw,1.5rem)] flex items-center justify-center h-full">
+                    <p className="text-[#3b2a1a] text-[clamp(0.875rem,2vw,1.125rem)] font-serif font-bold drop-shadow-sm text-center transition-transform group-hover:scale-105 leading-relaxed">
                       {choice.text}
                     </p>
                   </div>
@@ -538,7 +534,7 @@ export default function GameScreen({
             <button
               onClick={handleContinue}
               // Ganti min-h-17.5 jadi h-[55px] dan pastikan ada shrink-0
-              className="group relative w-full h-[55px] md:h-[70px] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative w-full h-[clamp(55px,7vw,70px)] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className="absolute inset-0 z-0">
                 <Image
@@ -558,11 +554,11 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-              <div className="relative z-20 px-6 py-2 flex items-center justify-center gap-2 h-full">
-                <p className="text-[#3b2a1a] text-lg md:text-2xl font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
+              <div className="relative z-20 px-[clamp(1.5rem,3vw,2rem)] py-2 flex items-center justify-center gap-2 h-full">
+                <p className="text-[#3b2a1a] text-[clamp(1.125rem,2.5vw,1.5rem)] font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
                   Lanjutkan
                 </p>
-                <span className="text-[#3b2a1a] text-xl md:text-2xl animate-pulse">
+                <span className="text-[#3b2a1a] text-[clamp(1.25rem,2.5vw,1.5rem)] animate-pulse">
                   ▶
                 </span>
               </div>
@@ -580,7 +576,7 @@ export default function GameScreen({
                 setShowEnding(true);
               }}
               // Ganti min-h-17.5 jadi h-[55px] dan pastikan ada shrink-0
-              className="group relative w-full h-[55px] md:h-[70px] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative w-full h-[clamp(55px,7vw,70px)] shrink-0 pointer-events-auto transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
             >
               <div className="absolute inset-0 z-0">
                 <Image
@@ -600,8 +596,8 @@ export default function GameScreen({
                   unoptimized
                 />
               </div>
-              <div className="relative z-20 px-6 py-2 flex items-center justify-center h-full">
-                <p className="text-[#3b2a1a] text-lg md:text-2xl font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
+              <div className="relative z-20 px-[clamp(1.5rem,3vw,2rem)] py-2 flex items-center justify-center h-full">
+                <p className="text-[#3b2a1a] text-[clamp(1.125rem,2.5vw,1.5rem)] font-serif font-bold drop-shadow-sm transition-transform group-hover:scale-105">
                   Lihat Hasil Akhir
                 </p>
               </div>
@@ -609,8 +605,20 @@ export default function GameScreen({
           )}
       </div>
 
+      {/* Audio Controls Toggle Button */}
+      <button
+        onClick={() => setShowAudioControls(!showAudioControls)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#5e3a21] border-3 border-[#8B4513] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
+        title={showAudioControls ? "Sembunyikan Audio Controls" : "Tampilkan Audio Controls"}
+        style={{
+          boxShadow: "0 6px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3)",
+        }}
+      >
+        <span className="text-3xl">{showAudioControls ? "✖️" : "🔊"}</span>
+      </button>
+
       {/* Audio Controls */}
-      <AudioControls visible={true} />
+      <AudioControls visible={showAudioControls} onClose={() => setShowAudioControls(false)} />
     </div>
   );
 }
