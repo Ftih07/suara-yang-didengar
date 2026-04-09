@@ -25,21 +25,59 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translate(-50%, 10px); }
-  100% { opacity: 1; transform: translate(-50%, 0); }
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
 }
 .animate-fade-in-up {
   animation: fade-in-up 0.5s ease-out forwards;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(10px); 
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+/* Custom Scrollbar Global Tema Desa/Perkamen */
+
+/* Untuk Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #8c5e35 transparent;
+}
+
+/* Untuk Chrome, Edge, Safari, Opera */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* Background jalur scrollbar */
+*::-webkit-scrollbar-track {
+  background: rgba(212, 188, 150, 0.2); /* Warna krem transparan */
+  border-radius: 10px;
+}
+
+/* Batang scrollbar itu sendiri */
+*::-webkit-scrollbar-thumb {
+  background-color: #8c5e35; /* Warna coklat kayu */
+  border-radius: 10px;
+  /* Border disamakan dengan warna background modal biar seolah melayang & rapi */
+  border: 2px solid #e8d5b5;
+}
+
+/* Saat scrollbar dihover/diklik */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #5a4027; /* Coklat lebih gelap */
+}

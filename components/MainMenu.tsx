@@ -15,6 +15,7 @@ type MainMenuProps = {
   onSelectChapter: (startId: string) => void;
   onContinueGame: () => void;
 };
+import CreditsModal from "@/components/CreditsModal";
 
 // --- Komponen Bantuan untuk Bar Status di Modal ---
 const SimpleStatBar = ({
@@ -95,29 +96,37 @@ export default function MainMenu({
   const [playedChapters, setPlayedChapters] = useState<string[]>([]);
   const [showAudioControls, setShowAudioControls] = useState(false);
 
+  const [showCreditsModal, setShowCreditsModal] = useState(false);
+  // State baru untuk fitur Reset & Toast
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    visible: boolean;
+  } | null>(null);
+
   useEffect(() => {
     setHasSave(hasSavedGame());
     setPlayedChapters(getPlayedChapters());
 
     const audioManager = AudioManager.getInstance();
     let isUnmounted = false;
-    
+
     // Handler untuk unlock AudioContext + start music setelah user gesture
     const handleFirstInteraction = async () => {
       if (isUnmounted) return;
-      
+
       try {
         // Resume AudioContext terlebih dahulu
         await audioManager.resumeAudioContext();
-        
+
         // Baru play music jika belum playing
         if (!audioManager.isBgMusicPlaying()) {
-          await audioManager.playBackgroundMusic('menu');
+          await audioManager.playBackgroundMusic("menu");
         }
       } catch (error) {
-        console.warn('Failed to start audio:', error);
+        console.warn("Failed to start audio:", error);
       }
-      
+
       // Cleanup listeners setelah berhasil
       window.removeEventListener("click", handleFirstInteraction);
       window.removeEventListener("touchstart", handleFirstInteraction);
@@ -126,7 +135,9 @@ export default function MainMenu({
 
     // Setup listeners untuk first user interaction
     window.addEventListener("click", handleFirstInteraction, { once: false });
-    window.addEventListener("touchstart", handleFirstInteraction, { once: false });
+    window.addEventListener("touchstart", handleFirstInteraction, {
+      once: false,
+    });
     window.addEventListener("keydown", handleFirstInteraction, { once: false });
 
     return () => {
@@ -157,20 +168,30 @@ export default function MainMenu({
     setSelectedChapterId(null);
   };
 
-  // Fungsi untuk mereset total semua progress game
-  const handleResetData = () => {
-    const confirmReset = window.confirm(
-      "AWAS! Tindakan ini akan menghapus SEMUA progress chapter yang sudah terbuka dan data save Anda. Apakah Anda benar-benar yakin?",
-    );
+  // Fungsi dipanggil saat tombol "RESET DATA" di klik
+  const handleResetClick = () => {
+    setShowResetModal(true);
+  };
 
-    if (confirmReset) {
-      hardResetGame();
-      // Update state supaya UI langsung berubah
-      setHasSave(false);
-      setPlayedChapters([]);
-      alert("Semua data berhasil direset. Memulai lembaran baru!");
-      window.location.reload(); // Refresh halaman biar bersih total
-    }
+  // Fungsi dipanggil jika user memilih "YA, HAPUS" di dalam modal
+  const confirmReset = () => {
+    hardResetGame();
+
+    // Update state supaya UI langsung berubah tanpa perlu reload
+    setHasSave(false);
+    setPlayedChapters([]);
+    setShowResetModal(false);
+
+    // Tampilkan Toast
+    setToast({
+      message: "Semua data progres dan save berhasil dihapus secara permanen.",
+      visible: true,
+    });
+
+    // Auto-close Toast setelah 4 detik
+    setTimeout(() => {
+      setToast((prev) => (prev ? { ...prev, visible: false } : null));
+    }, 4000);
   };
 
   // Fungsi untuk menampilkan Status Desa
@@ -313,16 +334,24 @@ export default function MainMenu({
       <button
         onClick={() => setShowAudioControls(!showAudioControls)}
         className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#5e3a21] border-3 border-[#8B4513] rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all duration-200 flex items-center justify-center"
-        title={showAudioControls ? "Sembunyikan Audio Controls" : "Tampilkan Audio Controls"}
+        title={
+          showAudioControls
+            ? "Sembunyikan Audio Controls"
+            : "Tampilkan Audio Controls"
+        }
         style={{
-          boxShadow: "0 6px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3)",
+          boxShadow:
+            "0 6px 20px rgba(0,0,0,0.5), inset 0 0 10px rgba(0,0,0,0.3)",
         }}
       >
         <span className="text-3xl">{showAudioControls ? "✖️" : "🔊"}</span>
       </button>
 
       {/* Audio Controls */}
-      <AudioControls visible={showAudioControls} onClose={() => setShowAudioControls(false)} />
+      <AudioControls
+        visible={showAudioControls}
+        onClose={() => setShowAudioControls(false)}
+      />
 
       {menuView === "main" && (
         <div className="relative z-10 flex flex-col items-center w-full h-full pt-16">
@@ -364,12 +393,12 @@ export default function MainMenu({
             {/* Tombol Status Desa sekarang punya fungsi */}
             <WoodButton onClick={handleShowStatus}>STATUS DESA</WoodButton>
 
-            <WoodButton onClick={() => {}}>PENGATURAN</WoodButton>
-
             {/* Ubah onClick di sini */}
-            <WoodButton onClick={handleResetData}>RESET DATA</WoodButton>
-            
-            <WoodButton onClick={() => {}}>KREDIT</WoodButton>
+            <WoodButton onClick={handleResetClick}>RESET DATA</WoodButton>
+
+            <WoodButton onClick={() => setShowCreditsModal(true)}>
+              KREDIT
+            </WoodButton>
           </div>
         </div>
       )}
@@ -597,6 +626,71 @@ export default function MainMenu({
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ── MODAL KREDIT ── */}
+      {showCreditsModal && (
+        <CreditsModal onClose={() => setShowCreditsModal(false)} />
+      )}
+
+      {/* ── MODAL KONFIRMASI RESET DATA ── */}
+      {showResetModal && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm px-4">
+          <div className="relative w-full max-w-md bg-[#3a2517] rounded-xl border-4 border-red-800 shadow-[0_0_30px_rgba(153,27,27,0.5)] p-6 flex flex-col items-center">
+            <div className="absolute inset-0 bg-[url('/backgrounds/kantor-desa.png')] bg-cover opacity-5 rounded-lg pointer-events-none" />
+
+            <h2 className="relative z-10 text-3xl font-black text-red-500 mb-3 text-center uppercase tracking-wider font-serif drop-shadow-md">
+              Peringatan Keras!
+            </h2>
+            <p className="relative z-10 text-[#ebcca5] text-center mb-6 leading-relaxed font-serif text-sm md:text-base">
+              Tindakan ini akan menghapus <b className="text-red-400">SEMUA</b>{" "}
+              progres chapter yang sudah terbuka dan data save Anda secara
+              permanen.
+              <br />
+              <br />
+              Apakah Anda benar-benar yakin ingin kembali ke titik nol?
+            </p>
+
+            <div className="relative z-10 flex flex-col gap-4 w-full">
+              <button
+                onClick={confirmReset}
+                className="w-full bg-gradient-to-b from-red-700 to-red-900 hover:from-red-600 hover:to-red-800 text-[#fcedd9] font-black text-xl font-serif py-3 rounded-lg border-b-4 border-[#4a0f0f] active:border-b-0 active:translate-y-1 transition-all shadow-md tracking-widest uppercase"
+              >
+                YA, HAPUS SEMUA
+              </button>
+              <WoodButton
+                width="w-full"
+                onClick={() => setShowResetModal(false)}
+              >
+                BATAL
+              </WoodButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TOAST NOTIFICATION (MODERN ALERT) ── */}
+      {toast && (
+        <div
+          className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-4 bg-[#e8d5b5] border-l-8 border-[#8c5e35] shadow-2xl px-6 py-4 rounded-r-lg transition-all duration-500 font-serif ${
+            toast.visible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-10 pointer-events-none"
+          }`}
+          style={{ minWidth: "300px" }}
+        >
+          <span className="text-2xl drop-shadow-sm">✅</span>
+          <p className="text-[#3b2a1a] font-bold text-sm md:text-base flex-1">
+            {toast.message}
+          </p>
+          <button
+            onClick={() => setToast({ ...toast, visible: false })}
+            className="text-[#8c5e35] hover:text-[#5a4027] font-black text-xl transition-colors p-1"
+            title="Tutup"
+          >
+            ✖
+          </button>
         </div>
       )}
     </div>
